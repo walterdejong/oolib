@@ -1,0 +1,11 @@
+.depend
+*.o
+*.so
+*.a
+*.swp
+*~
+.DS_Store
+oolib.xcworkspace
+oolib.xcworkspace/*
+TODO
+DESIGN

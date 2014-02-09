@@ -1,0 +1,22 @@
+#
+#   running tests:
+#
+#   - on Linux, set LD_LIBRARY_PATH
+#   - OS X, set DYLD_LIBRARY_PATH
+#
+#   Like so:
+#   $ export DYLD_LIBRARY_PATH=../lib
+#
+#
+#   Set LC_ALL:
+#
+#   $ export LC_ALL=en_US.utf8
+#
+#
+#   Run tests:
+#
+#   $ ./testString
+#
+#   You should be able to see some Chinese/Japanese characters in the terminal
+#   if the character sets are installed on your OS
+#
