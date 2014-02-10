@@ -129,7 +129,7 @@ void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
 
 				// else error in format string
 				if (!precision_ok) {
-					throw RuntimeError("format string error (in precision field)");
+					throw ValueError("format string error (in precision field)");
 				}
 				
 				// set precision
@@ -241,7 +241,7 @@ void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
 					
 				case 'c':
 					if (long_argument) {
-						throw RuntimeError("format string error (wchar_t is considered a broken type)");
+						throw ValueError("format string error (wchar_t is considered a broken type)");
 					} else {
 						s << (char)va_arg(ap, int);
 					}
@@ -253,7 +253,7 @@ void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
 					
 				case 's':
 					if (long_argument) {
-						throw RuntimeError("format string error (wchar_t* is considered a broken type)");
+						throw ValueError("format string error (wchar_t* is considered a broken type)");
 					} else {
 						char *cs = va_arg(ap, char *);
 						if (cs == nullptr) {
@@ -318,7 +318,7 @@ void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
 					break;
 
 				default:
-					throw RuntimeError("format string error (unsupported modifier)");
+					throw ValueError("format string error (unsupported modifier)");
 			}
 		} else {
 			s << *fmt;

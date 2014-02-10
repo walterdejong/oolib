@@ -340,21 +340,21 @@ Sock Sock::accept(void) const {
 
 String Sock::remoteaddr(void) const {
 	if (this->isNone()) {
-		throw RuntimeError("can not get remote address of an unconnected socket");
+		throw IOError("can not get remote address of an unconnected socket");
 	}
 
 	struct sockaddr_storage addr;
 	socklen_t addr_len = sizeof(struct sockaddr_storage);
 
 	if (::getpeername(f_.fileno(), (struct sockaddr *)&addr, &addr_len) == -1) {
-		throw RuntimeError("failed to get remote address of socket");
+		throw IOError("failed to get remote address of socket");
 	}
 
 	char host[NI_MAXHOST];
 
 	if (::getnameinfo((struct sockaddr *)&addr, addr_len, host, sizeof(host),
 		nullptr, 0, NI_NUMERICHOST|NI_NUMERICSERV) == -1) {
-		throw RuntimeError("failed to get numeric address of remote host");
+		throw IOError("failed to get numeric address of remote host");
 	}
 	return String(host);
 }
