@@ -33,10 +33,10 @@
 #include "oo/Base.h"
 #include "oo/None.h"
 #include "oo/String.h"
+#include "oo/Error.h"
 
 #include <cstdio>
 #include <cstdarg>
-#include <cassert>
 #include <memory>
 
 #include <unistd.h>
@@ -110,9 +110,12 @@ public:
 	bool open(const String& name, const String& mode) {
 		close();
 
-		assert(!name.empty());
-		assert(!mode.empty());
-
+		if (name.empty()) {
+			throw ValueError();
+		}
+		if (mode.empty()) {
+			throw ValueError();
+		}
 		name_ = name;
 		mode_ = mode;
 		w_ = std::shared_ptr<FILE>(std::fopen(name.c_str(), mode.c_str()), FileDeleter());
@@ -123,7 +126,9 @@ public:
 	bool open(void) { return open(name_, mode_); }
 
 	bool open(FILE *f, bool ispipe = false) {
-		assert(f != nullptr);
+		if (f == nullptr) {
+			throw ReferenceError();
+		}
 
 		close();
 
@@ -136,8 +141,12 @@ public:
 	}
 
 	bool open(int fd, const String& mode) {
-		assert(fd > 0);
-		assert(!mode.empty());
+		if (fd <= 0) {
+			throw ValueError();
+		}
+		if (mode.empty()) {
+			throw ValueError();
+		}
 
 		close();
 
@@ -149,8 +158,12 @@ public:
 	}
 
 	bool popen(const String& cmd, const String& mode) {
-		assert(!cmd.empty());
-		assert(!mode.empty());
+		if (cmd.empty()) {
+			throw ValueError();
+		}
+		if (mode.empty()) {
+			throw ValueError();
+		}
 
 		close();
 

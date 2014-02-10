@@ -37,7 +37,6 @@
 #include "oo/compare.h"
 #include "oo/types.h"
 
-#include <cassert>
 #include <cstdarg>
 #include <cstring>
 #include <string>
@@ -46,9 +45,6 @@
 #include <istream>
 
 namespace oo {
-
-extern const int kStringEncodingError;
-define_error(StringEncodingError, "string encoding error");
 
 class String;
 
@@ -230,12 +226,17 @@ T convert(const std::string& s) {
 
 template <typename T>
 inline T convert(const char *s) {
-	assert(s != nullptr);
+	if (s == nullptr) {
+		throw ReferenceError();
+	}
 	return convert<T>(std::string(s));
 }
 
 template <typename T>
 inline T convert(const String& s) {
+	if (s.isNone()) {
+		throw ReferenceError();
+	}
 	return convert<T>(s.str());
 }
 

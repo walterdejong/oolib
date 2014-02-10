@@ -33,7 +33,6 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include <cassert>
 
 #include <unistd.h>
 #include <signal.h>
@@ -121,7 +120,9 @@ void drop_privs(uid_t uid, gid_t gid) {
 }
 
 void drop_privs(const char *username) {
-	assert(username != nullptr);
+	if (username == nullptr) {
+		throw ReferenceError();
+	}
 
 	struct passwd *pw = ::getpwnam(username);
 	if (pw == nullptr) {

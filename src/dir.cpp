@@ -31,7 +31,6 @@
 
 #include <cstdlib>
 #include <cerrno>
-#include <cassert>
 
 #include <unistd.h>
 #include <dirent.h>
@@ -41,6 +40,10 @@ namespace oo {
 
 // returns 0 on success or negative errno on error
 int listdir(const String& path, Array<String>& a) {
+	if (path.empty()) {
+		throw ValueError();
+	}
+
 	const char *cpath = path.str().c_str();
 
 	struct stat statbuf;
@@ -80,7 +83,12 @@ int listdir(const String& path, Array<String>& a) {
 int treewalk(const String& path, void (*visit)(const String&, Array<String>&),
 	int (*onError)(const String&, int), bool followlinks) {
 
-	assert(visit != nullptr);
+	if (path.empty()) {
+		throw ValueError();
+	}
+	if (visit == nullptr) {
+		throw ReferenceError();
+	}
 
 	Array<String> entries;
 
@@ -125,12 +133,20 @@ int treewalk(const String& path, void (*visit)(const String&, Array<String>&),
 }
 
 bool exists(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	return (::lstat(path, &statbuf) == 0);
 }
 
 bool isfile(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -140,6 +156,10 @@ bool isfile(const char *path) {
 }
 
 bool isdir(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -149,6 +169,10 @@ bool isdir(const char *path) {
 }
 
 bool islink(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::lstat(path, &statbuf) == -1) {
@@ -158,6 +182,10 @@ bool islink(const char *path) {
 }
 
 bool isfifo(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -167,6 +195,10 @@ bool isfifo(const char *path) {
 }
 
 bool isblockdev(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -176,6 +208,10 @@ bool isblockdev(const char *path) {
 }
 
 bool ischardev(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -185,6 +221,10 @@ bool ischardev(const char *path) {
 }
 
 bool isdev(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -194,6 +234,10 @@ bool isdev(const char *path) {
 }
 
 bool issock(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -203,6 +247,10 @@ bool issock(const char *path) {
 }
 
 off_t filesize(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -212,6 +260,10 @@ off_t filesize(const char *path) {
 }
 
 mode_t file_mode(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -221,6 +273,10 @@ mode_t file_mode(const char *path) {
 }
 
 uid_t file_owner(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -230,6 +286,10 @@ uid_t file_owner(const char *path) {
 }
 
 gid_t file_group(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::stat(path, &statbuf) == -1) {
@@ -239,6 +299,10 @@ gid_t file_group(const char *path) {
 }
 
 struct stat file_stat(const char *path) {
+	if (path == nullptr) {
+		throw ReferenceError();
+	}
+
 	struct stat statbuf;
 
 	if (::lstat(path, &statbuf) == -1) {

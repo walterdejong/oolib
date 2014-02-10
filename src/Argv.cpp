@@ -33,7 +33,6 @@
 #include "oo/print.h"
 
 #include <sstream>
-#include <cassert>
 #include <cstring>
 
 #include <libgen.h>
@@ -66,8 +65,12 @@ std::string ArgvObject::str(void) const {
 }
 
 void ArgvObject::init(int argc, char **argv) {
-	assert(argc > 0);
-	assert(argv != nullptr);
+	if (argc <= 0) {
+		throw ValueError();
+	}
+	if (argv == nullptr) {
+		throw ReferenceError();
+	}
 
 	s_argc = argc;
 	s_argv = argv;
@@ -115,8 +118,12 @@ int ArgvObject::getopt(const Options *options) {
 		s_opt.state = GetOptRestArgs;
 	}
 
-	assert(s_argc > 0);
-	assert(s_argv != nullptr);
+	if (s_argc <= 0) {
+		throw ValueError();
+	}
+	if (s_argv == nullptr) {
+		throw ReferenceError();
+	}
 
 	const char *arg, *option;
 	char ch;

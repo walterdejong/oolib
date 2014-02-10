@@ -34,8 +34,6 @@
 
 namespace oo {
 
-const int kStringEncodingError = -10;
-
 const String kStringStripDefaultCharSet = String(" \t\r\n\v\f");
 
 
@@ -807,8 +805,12 @@ size_t String::utf8_len(const char *s) {
 }
 
 void String::utf8_decode(const char *s, rune *r, size_t n) {
-	assert(s != nullptr);
-	assert(r != nullptr);
+	if (s == nullptr || r == nullptr) {
+		throw ReferenceError();
+	}
+	if (!n) {
+		throw ValueError();
+	}
 
 	rune code;
 	while(*s && n > 0) {
@@ -887,8 +889,12 @@ void String::utf8_decode(const char *s, rune *r, size_t n) {
 }
 
 void String::utf8_encode(const rune *r, char *s, size_t n) {
-	assert(r != nullptr);
-	assert(s != nullptr);
+	if (r == nullptr || s == nullptr) {
+		throw ReferenceError();
+	}
+	if (!n) {
+		throw ValueError();
+	}
 
 	rune code;
 
@@ -959,6 +965,10 @@ size_t String::utf8_encoded_size(rune code) {
 }
 
 size_t String::utf8_encoded_len(const rune *r) {
+	if (r == nullptr) {
+		throw ReferenceError();
+	}
+
 	size_t l = 0;
 
 	while(*r) {
@@ -969,7 +979,10 @@ size_t String::utf8_encoded_len(const rune *r) {
 }
 
 String sprint(const char *fmt, ...) {
-	if (fmt == nullptr || !*fmt) {
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
+	if (!*fmt) {
 		return String();
 	}
 
@@ -983,7 +996,10 @@ String sprint(const char *fmt, ...) {
 }
 
 String vsprint(const char *fmt, va_list ap) {
-	if (fmt == nullptr || !*fmt) {
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
+	if (!*fmt) {
 		return String();
 	}
 

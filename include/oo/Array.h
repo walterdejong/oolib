@@ -42,7 +42,6 @@
 #include <algorithm>
 #include <ostream>
 #include <sstream>
-#include <cassert>
 
 namespace oo {
 

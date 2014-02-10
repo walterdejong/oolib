@@ -37,7 +37,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <cassert>
 #include <mutex>
 #include <condition_variable>
 #include <vector>
@@ -69,7 +68,11 @@ public:
 	typedef T value_type;
 
 	Chan(size_t n=1) : Base(), Sizeable(),
-		mx_(), not_empty_(), not_full_(), buffer(n) { assert(n > 0); }
+		mx_(), not_empty_(), not_full_(), buffer(n) {
+		if (n <= 0) {
+			throw ValueError();
+		}
+	}
 
 	Chan(const NoneObject&) : Base(), Sizeable(),
 		mx_(), not_empty_(), not_full_(), buffer() { }

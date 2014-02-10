@@ -31,14 +31,15 @@
 
 #include <cstdlib>
 #include <cerrno>
-#include <cassert>
 
 #include <fcntl.h>
 
 namespace oo {
 
 Sem::Sem(const String& name, int value) {
-	assert(!name.empty());
+	if (name.empty()) {
+		throw ValueError();
+	}
 
 	// create semaphore
 	// OSX does not support unnamed semaphores, so use a named semaphore

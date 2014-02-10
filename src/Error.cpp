@@ -41,10 +41,10 @@ const int kValueError = -3;
 const int kTypeError = -4;
 const int kZeroDivisionError = -5;
 const int kReferenceError = -6;
-const int kAssertionError = -7;
-const int kIOError = -8;
-const int kRuntimeError = -9;
-const int kOSError = -10;
+const int kIOError = -7;
+const int kRuntimeError = -8;
+const int kOSError = -9;
+const int kStringEncodingError = -10;
 
 static bool initError(void);
 static void terminate_handler(void);

@@ -77,7 +77,12 @@ Array<String> File::readlines(void) {
 }
 
 size_t File::read(void *buf, size_t n) {
-	assert(buf != nullptr);
+	if (buf == nullptr) {
+		throw ReferenceError();
+	}
+	if (!n) {
+		return 0;
+	}
 
 	if (w_.get() == nullptr) {
 		throw IOError("read from a closed file");
@@ -92,6 +97,10 @@ size_t File::read(void *buf, size_t n) {
 }
 
 void File::write(const String& s) {
+	if (s.isNone()) {
+		throw ValueError();
+	}
+
 	if (this->isNone()) {
 		if (this == &Stdout || this == &Stderr) {
 			// it's OK to close stdout/stderr and still write to it
@@ -110,13 +119,22 @@ void File::write(const String& s) {
 }
 
 void File::writelines(const Array<String>& a) {
+	if (a.isNone()) {
+		throw ValueError();
+	}
+
 	for(size_t i = 0; i < a.len(); i++) {
 		this->write(a[i]);
 	}
 }
 
 void File::write(void *buf, size_t n) {
-	assert(buf != nullptr);
+	if (buf == nullptr) {
+		throw ReferenceError();
+	}
+	if (!n) {
+		return;
+	}
 
 	if (this->isNone()) {
 		if (this == &Stdout || this == &Stderr) {
@@ -177,15 +195,18 @@ bool File::mktemp(void) {
 }
 
 void File::truncate(off_t l) {
-	assert(!name_.empty());
-
+	if (name_.empty()) {
+		throw ValueError();
+	}
 	if (::truncate(name_.c_str(), l) == -1) {
 		throw IOError("truncate failed");
 	}
 }
 
 struct stat File::stat(void) {
-	assert(!name_.empty());
+	if (name_.empty()) {
+		throw ValueError();
+	}
 
 	struct stat statbuf;
 
@@ -196,7 +217,9 @@ struct stat File::stat(void) {
 }
 
 struct stat File::lstat(void) {
-	assert(!name_.empty());
+	if (name_.empty()) {
+		throw ValueError();
+	}
 
 	struct stat statbuf;
 
@@ -209,8 +232,12 @@ struct stat File::lstat(void) {
 // factory funs
 
 File open(const String& a_filename, const String& a_mode) {
-	assert(!a_filename.empty());
-	assert(!a_mode.empty());
+	if (a_filename.empty()) {
+		throw ValueError();
+	}
+	if (a_mode.empty()) {
+		throw ValueError();
+	}
 
 	File f;
 	f.open(a_filename, a_mode);
@@ -218,8 +245,12 @@ File open(const String& a_filename, const String& a_mode) {
 }
 
 File open(int fd, const String& a_mode) {
-	assert(fd >= 0);
-	assert(!a_mode.empty());
+	if (fd <= 0) {
+		throw ValueError();
+	}
+	if (a_mode.empty()) {
+		throw ValueError();
+	}
 
 	File f;
 	f.open(fd, a_mode);
@@ -227,8 +258,12 @@ File open(int fd, const String& a_mode) {
 }
 
 File popen(const String& cmd, const String& a_mode) {
-	assert(!cmd.empty());
-	assert(!a_mode.empty());
+	if (cmd.empty()) {
+		throw ValueError();
+	}
+	if (a_mode.empty()) {
+		throw ValueError();
+	}
 
 	File f;
 	f.popen(cmd, a_mode);
@@ -248,8 +283,9 @@ File tempfile(bool unlink_file) {
 }
 
 void fprint(File& f, const char *fmt, ...) {
-	assert(fmt != nullptr);
-
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -262,7 +298,9 @@ void fprint(File& f, const char *fmt, ...) {
 }
 
 void vfprint(File& f, const char *fmt, std::va_list ap) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::stringstream ss;
 	vssprint(ss, fmt, ap);

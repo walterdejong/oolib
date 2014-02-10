@@ -32,7 +32,6 @@
 #include "oo/Mutex.h"
 
 #include <cstdlib>
-#include <cassert>
 #include <map>
 #include <cerrno>
 #include <vector>
@@ -164,21 +163,20 @@ void wait(void) {
 
 	for(;;) {
 		if (::waitpid(-1, &status, 0) == (pid_t)-1) {
-			if (errno == ECHILD)	// no more child processes
+			if (errno == ECHILD) {	// no more child processes
 				break;
-
+			}
 			throw OSError("failed waitpid() call, something wrong with child process");
 		}
 	}
 }
 
 void jump_tid(unsigned int n) {
-	assert(n > 1);
+	if (n < 1) {
+		throw ValueError();
+	}
 
 	n--;
-	if (!n) {
-		return;
-	}
 	eternal_tid += n;
 }
 

@@ -30,7 +30,6 @@
 #include "oo/Observer.h"
 
 #include <stdlib.h>
-#include <assert.h>
 
 namespace oo {
 
@@ -40,7 +39,9 @@ NotificationCenter defaultNotificationCenter;
 
 // register observer for a specific event
 void NotificationCenter::add_observer(Observer& o, const char *event) {
-	assert(event != nullptr);
+	if (event == nullptr) {
+		throw ReferenceError();
+	}
 
 	String key = event;
 	Array<Observer *> a;
@@ -84,7 +85,9 @@ void NotificationCenter::remove_observer(Observer& o, const char *event) {
 }
 
 void NotificationCenter::notify(const char *event) {
-	assert(event != nullptr);
+	if (event == nullptr) {
+		throw ReferenceError();
+	}
 
 	String key = event;
 

@@ -30,7 +30,6 @@
 #include "oo/Sock.h"
 #include "oo/print.h"
 
-#include <cassert>
 #include <cerrno>
 #include <cstring>
 
@@ -52,7 +51,9 @@ int Sock::getprotobyname(const char *name) {
 }
 
 int Sock::getservbyname(const char *name, const char *proto) {
-	assert(name != nullptr);
+	if (name == nullptr) {
+		throw ReferenceError();
+	}
 
 	if (proto == nullptr) {
 		proto = "tcp";
@@ -94,7 +95,9 @@ String Sock::getservbyport(int port, const char *proto) {
 	So I made listen() and listen6() instead.
 
 bool Sock::listen(const char *serv) {
-	assert(serv != nullptr);
+	if (serv == nullptr) {
+		throw ReferenceError();
+	}
 
 	if (!this->isNone()) {
 		throw IOError("socket is already in use");
@@ -255,8 +258,12 @@ bool Sock::listen6(const char *serv) {
 }
 
 bool Sock::connect(const char *ipaddr, const char *serv) {
-	assert(ipaddr != nullptr);
-	assert(serv != nullptr);
+	if (ipaddr == nullptr) {
+		throw ReferenceError();
+	}
+	if (serv == nullptr) {
+		throw ReferenceError();
+	}
 
 	if (!this->isNone()) {
 		throw IOError("socket is already in use");
@@ -380,7 +387,9 @@ Sock connect(const char *ipaddr, const char *serv) {
 }
 
 String resolv(const String& ipaddr) {
-	assert(!ipaddr.empty());
+	if (ipaddr.empty()) {
+		throw ValueError();
+	}
 
 	struct addrinfo *res;
 
@@ -406,8 +415,9 @@ String resolv(const String& ipaddr) {
 }
 
 void fprint(Sock& sock, const char *fmt, ...) {
-	assert(fmt != nullptr);
-
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -421,7 +431,9 @@ void fprint(Sock& sock, const char *fmt, ...) {
 }
 
 void vfprint(Sock& sock, const char *fmt, std::va_list ap) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::stringstream ss;
 	vssprint(ss, fmt, ap);

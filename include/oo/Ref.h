@@ -33,7 +33,6 @@
 #include "oo/Base.h"
 #include "oo/Error.h"
 
-#include <cassert>
 #include <ostream>
 #include <memory>
 #include <utility>
@@ -49,7 +48,9 @@ public:
 
 	// warning: this is NOT for arbitrary pointers ... only for "new T"'s
 	Ref(T *p) : Base(), r_(p), isnone_(false) {
-		assert(p != nullptr);
+		if (p == nullptr) {
+			throw ValueError();
+		}
 	}
 
 	Ref(const Ref<T>& r) : Base(), r_(r.r_), isnone_(r.isnone_) { }

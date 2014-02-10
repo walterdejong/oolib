@@ -46,10 +46,10 @@ extern const int kValueError;
 extern const int kTypeError;
 extern const int kZeroDivisionError;
 extern const int kReferenceError;
-extern const int kAssertionError;
 extern const int kIOError;
 extern const int kRuntimeError;
 extern const int kOSError;
+extern const int kStringEncodingError;
 
 class Error : public Base {
 public:
@@ -142,11 +142,11 @@ define_error(IndexError, "index out of range");
 define_error(ValueError, "invalid value");
 define_error(TypeError, "invalid type in operation");
 define_error(ZeroDivisionError, "division by zero");
-define_error(ReferenceError, "null pointer reference");	// usually not thrown; use ValueError or assert() instead
-define_error(AssertionError, "assertion failed");
+define_error(ReferenceError, "null pointer reference");
 define_error(IOError, "I/O error");
-define_error(RuntimeError, "runtime error");			// often used for other kind of errors
+define_error(RuntimeError, "runtime error");	// often used for other kind of errors
 define_error(OSError, "OS error");
+define_error(StringEncodingError, "string encoding error");
 
 void panic(const Error&);
 void panic(const std::string&);

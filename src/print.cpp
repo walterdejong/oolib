@@ -35,7 +35,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cassert>
 
 namespace oo {
 
@@ -44,8 +43,9 @@ static Mutex printer_lock;
 
 
 void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
-	assert(fmt != nullptr);
-
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -330,8 +330,9 @@ void vssprint(std::stringstream& s, const char *fmt, std::va_list ap) {
 }
 
 void ssprint(std::stringstream& s, const char *fmt, ...) {
-	assert(fmt != nullptr);
-	
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -345,8 +346,9 @@ void ssprint(std::stringstream& s, const char *fmt, ...) {
 
 // vprint to output stream
 void vosprint(std::ostream& os, const char *fmt, std::va_list ap) {
-	assert(fmt != nullptr);
-
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -361,8 +363,9 @@ void vosprint(std::ostream& os, const char *fmt, std::va_list ap) {
 
 // vprint to output stream without newline
 void vosprintn(std::ostream& os, const char *fmt, std::va_list ap) {
-	assert(fmt != nullptr);
-
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 	if (!*fmt) {
 		return;
 	}
@@ -382,7 +385,9 @@ void print(void) {
 }
 
 void print(const char *fmt, ...) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::va_list ap;
 	va_start(ap, fmt);
@@ -393,7 +398,9 @@ void print(const char *fmt, ...) {
 }
 
 void printn(const char *fmt, ...) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::va_list ap;
 	va_start(ap, fmt);
@@ -410,7 +417,9 @@ void printerr(void) {
 }
 
 void printerr(const char *fmt, ...) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::va_list ap;
 	va_start(ap, fmt);
@@ -421,7 +430,9 @@ void printerr(const char *fmt, ...) {
 }
 
 void printnerr(const char *fmt, ...) {
-	assert(fmt != nullptr);
+	if (fmt == nullptr) {
+		throw ReferenceError();
+	}
 
 	std::va_list ap;
 	va_start(ap, fmt);
