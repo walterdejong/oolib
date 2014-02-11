@@ -47,7 +47,7 @@ public:
 	virtual size_t len(void) const = 0;
 	virtual size_t cap(void) const { return len(); }
 
-	virtual bool empty(void) const { return this->len() == 0; }
+	virtual bool empty(void) const { return (this->len() == 0); }
 
 	virtual void grow(size_t) { }
 

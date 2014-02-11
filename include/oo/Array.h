@@ -100,10 +100,26 @@ public:
 	bool isNone(void) const { return (v_.size() == 0); }
 	void setNone(void) { clear(); }
 
-	void clear(void) { v_.clear(); }
+	// the swap trick frees all memory in the vector
+	static void force_free(std::vector<T>& v) {
+		std::vector<T> tmp;
+		v.swap(tmp);
+		// stack unwinds, deleting tmp
+	}
+
+	void clear(void) {
+		force_free(v_);
+		v_.clear();
+	}
 
 	size_t len(void) const { return v_.size(); }
-	size_t cap(void) const { if (isNone()) return 0; return v_.capacity(); }
+
+	size_t cap(void) const {
+		if (isNone()) {
+			return 0;
+		}
+		return v_.capacity();
+	}
 
 	void grow(size_t n) {
 		// round up to next multiple of 4
