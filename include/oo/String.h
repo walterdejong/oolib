@@ -93,6 +93,14 @@ public:
 	using Base::operator==;
 	using Base::operator!=;
 
+	// FIXME setting a string to None should just clear it
+	// FIXME and turn it into an empty string: ""
+	// FIXME this changes how strings are used
+	// FIXME and no more checks everywhere for isNone()
+
+	// FIXME This idea/style changes the usefulness of 'None'
+	// FIXME so rethink 'None' or maybe just take it out
+
 	bool isNone(void) const { return (s_data == nullptr); }
 	void setNone(void) { clear(); }
 
