@@ -38,7 +38,7 @@ const String kStringStripDefaultCharSet = String(" \t\r\n\v\f");
 
 
 String::String(const String& s) {
-	if (s.s_data == nullptr) {
+	if (s.isNone()) {
 		s_len = s_cap = 0;
 		s_data = nullptr;
 	} else {
@@ -117,6 +117,9 @@ void String::grow(size_t n) {
 }
 
 rune String::operator[](int idx) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (idx < 0) {
 		idx += s_len;
 
@@ -137,6 +140,9 @@ rune String::operator[](int idx) const {
 }
 
 String& String::operator+=(const String& s) {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!s.len()) {
 		return *this;
 	}
@@ -159,6 +165,9 @@ String& String::operator+=(const String& s) {
 }
 
 String& String::operator+=(rune code) {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!code) {
 		return *this;
 	}
@@ -185,6 +194,9 @@ String& String::operator+=(rune code) {
 }
 
 String& String::operator*=(int n) {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (n <= 1) {
 		return *this;
 	}
@@ -218,6 +230,9 @@ String& String::operator*=(int n) {
 
 // default arguments start=0, end=0
 int String::find(rune r, int start, int end) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (start < 0) {
 		start += s_len;
 
@@ -256,6 +271,9 @@ int String::find(rune r, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::rfind(rune r, int start, int end) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (start < 0) {
 		start += s_len;
 
@@ -294,6 +312,9 @@ int String::rfind(rune r, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::find(const String& s, int start, int end) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (start < 0) {
 		start += s_len;
 
@@ -303,7 +324,7 @@ int String::find(const String& s, int start, int end) const {
 	}
 
 	// end must be at least at 'distance' of length of search string
-	end -= s.s_len;
+	end -= s.len();		// s.len() also checks for 'None'
 
 	if (end <= 0) {
 		end += s_len;
@@ -339,6 +360,9 @@ int String::find(const String& s, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::rfind(const String& s, int start, int end) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (start < 0) {
 		start += s_len;
 
@@ -348,7 +372,7 @@ int String::rfind(const String& s, int start, int end) const {
 	}
 
 	// end must be at least at 'distance' of length of search string
-	end -= s.s_len;
+	end -= s.len();		// s.len() also checks for 'None'
 
 	if (end <= 0) {
 		end += s_len;
@@ -384,6 +408,9 @@ int String::rfind(const String& s, int start, int end) const {
 
 // default argument is a default strippin charset
 String String::strip(const String& charset) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!s_len) {
 		return *this;
 	}
@@ -433,6 +460,9 @@ String String::strip(const String& charset) const {
 }
 
 String String::lstrip(const String& charset) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!s_len) {
 		return *this;
 	}
@@ -464,6 +494,9 @@ String String::lstrip(const String& charset) const {
 }
 
 String String::rstrip(const String& charset) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!s_len) {
 		return *this;
 	}
@@ -495,6 +528,10 @@ String String::rstrip(const String& charset) const {
 }
 
 String String::upper(void) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
+
 	String s = *this;
 
 	char *p = s.s_data;
@@ -510,6 +547,10 @@ String String::upper(void) const {
 }
 
 String String::lower(void) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
+
 	String s = *this;
 
 	char *p = s.s_data;
@@ -525,6 +566,10 @@ String String::lower(void) const {
 }
 
 String String::capitalize(void) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
+
 	String s = *this;
 
 	char *p = s.s_data;
@@ -535,6 +580,10 @@ String String::capitalize(void) const {
 }
 
 String String::capwords(void) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
+
 	String s = *this;
 
 	char *p = s.s_data;
@@ -559,6 +608,9 @@ String String::capwords(void) const {
 }
 
 String String::slice(int idx1, int idx2) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (idx1 < 0) {
 		idx1 += len();
 
@@ -589,6 +641,9 @@ String String::slice(int idx1, int idx2) const {
 
 // default argument n == -1 (replace all)
 String String::replace(const String& sub, const String& repl, int n) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!n) {
 		return *this;
 	}
@@ -617,6 +672,9 @@ String String::replace(const String& sub, const String& repl, int n) const {
 
 // default argument sep = ' '
 Array<String> String::split(rune sep) const {
+	if (isNone()) {
+		throw ReferenceError();
+	}
 	if (!s_len) {
 		return Array<String>();
 	}
@@ -625,7 +683,6 @@ Array<String> String::split(rune sep) const {
 	utf8_decode(s_data, tmp, s_len + 1);
 
 	Array<String> a;
-	String s = None;
 
 	unsigned int start = 0, end;
 	for(end = 0; end < s_len; end++) {
@@ -660,28 +717,24 @@ String String::join(const Array<String>& a, rune sep) const {
 	// first calculate total size
 
 	size_t rune_size = utf8_encoded_size(sep);
-	size_t l = a[0].cap();
-	if (l > 0) {
-		l--;
-	}
+	size_t total = 0;
+	const char *p;
 
-	size_t total = l;
-
-	for(size_t i = 1; i < a.len(); i++) {
-		total += rune_size;
-		l = a[i].cap();
-		if (l > 0) {
-			l--;
+	for(size_t i = 0; i < a.len(); i++) {
+		p = a[i].c_str();
+		if (p == nullptr) {
+			throw ReferenceError();
 		}
-		total += l;
+		total += std::strlen(p) + rune_size;
 	}
+	total -= rune_size;
 
 	// make the joined string
 	String s = None;
 	s.grow(total + 1);
 	s.s_data[0] = 0;
 
-	if (a[0].s_data) {
+	if (a[0].s_data != nullptr) {
 		std::strcpy(s.s_data, a[0].s_data);
 	}
 
@@ -701,31 +754,27 @@ String String::join(const Array<String>& a, rune sep) const {
 }
 
 String String::join(const Array<String>& a, const String& sep) const {
-	if (!a.len())
+	if (!a.len()) {
 		return String();
+	}
+	if (sep.isNone()) {
+		throw ReferenceError();
+	}
 
 	// first calculate total size
 
-	size_t sep_size = sep.cap();
-	if (sep_size > 0) {
-		sep_size--;
-	}
+	size_t sep_size = std::strlen(sep.c_str());
+	size_t total = 0;
+	const char *p;
 
-	size_t l = a[0].cap();
-	if (l > 0) {
-		l--;
-	}
-
-	size_t total = l;
-
-	for(size_t i = 1; i < a.len(); i++) {
-		total += sep_size;
-		l = a[i].cap();
-		if (l > 0) {
-			l--;
+	for(size_t i = 0; i < a.len(); i++) {
+		p = a[i].c_str();
+		if (p == nullptr) {
+			throw ReferenceError();
 		}
-		total += l;
+		total += std::strlen(p) + sep_size;
 	}
+	total -= sep_size;
 
 	// make the joined string
 	String s = None;
@@ -750,10 +799,15 @@ String String::join(const Array<String>& a, const String& sep) const {
 
 // returns # of characters in utf-8 string (excluding nul terminator)
 size_t String::utf8_len(const char *s) {
-	if (s == nullptr || !*s) {
+	if (s == nullptr) {
+		throw ReferenceError();
+	}
+	if (!*s) {
 		return 0;
 	}
+
 	size_t n = 0;
+
 	while(*s) {
 		if ((*s & 0x80) == 0x80) {				// negative value
 			if ((*s & 0xe0) == 0xc0) {			// 1 more byte

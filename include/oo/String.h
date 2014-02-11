@@ -93,8 +93,7 @@ public:
 	using Base::operator==;
 	using Base::operator!=;
 
-	// empty string equals None, although it does not print as "(none)"
-	bool isNone(void) const { return !s_len; }
+	bool isNone(void) const { return (s_data == nullptr); }
 	void setNone(void) { clear(); }
 
 	void clear(void) {
@@ -106,7 +105,7 @@ public:
 	}
 
 	std::string repr(void) const {
-		if (s_data == nullptr) {
+		if (isNone()) {
 			return "(None)";
 		}
 		std::stringstream ss;
@@ -115,7 +114,7 @@ public:
 	}
 
 	std::string str(void) const {
-		if (s_data == nullptr) {
+		if (isNone()) {
 			return "(none)";
 		}
 		return std::string(s_data);
@@ -147,13 +146,21 @@ public:
 	}
 
 	bool operator==(const String& s) const {
+		if (isNone()) {
+			return false;
+		}
 		if (s_len != s.s_len) {
 			return false;
 		}
 		return (std::strcmp(s_data, s.s_data) == 0);
 	}
 
-	bool operator<(const String& s) const { return (std::strcmp(s_data, s.s_data) < 0); }
+	bool operator<(const String& s) const {
+		if (isNone()) {
+			throw ReferenceError();
+		}
+		return (std::strcmp(s_data, s.s_data) < 0);
+	}
 
 	int find(rune, int=0, int=0) const;
 	int rfind(rune, int=0, int=0) const;
