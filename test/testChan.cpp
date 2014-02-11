@@ -71,7 +71,9 @@ int main(void) {
 	chan = None;
 	if (chan == None)
 		print("chan equals None");
-	
+	else
+		print("chan != None : FAIL");
+
 	return 0;
 }
 

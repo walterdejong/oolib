@@ -85,7 +85,17 @@ public:
 	bool isNone(void) const { return (s_.size() == 0); }
 	void setNone(void) { clear(); }
 
-	void clear(void) { s_.clear(); }
+	// the swap trick frees all memory in the set
+	static void force_free(std::set<T>& s) {
+		std::set<T> tmp;
+		s.swap(tmp);
+		// stack unwinds, deleting tmp
+	}
+
+	void clear(void) {
+		force_free(s_);
+		s_.clear();
+	}
 
 	size_t len(void) const { return s_.size(); }
 	size_t cap(void) const { return len(); }

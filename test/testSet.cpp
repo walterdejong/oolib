@@ -69,6 +69,10 @@ int main(void) {
 	while(len(b) > 0) {
 		print("b.pop(): %d", b.pop());
 	}
+
+	a = None;
+	print("assignment to None: %v len: %zu", &a, len(a));
+	print("a.empty(): %s", a.empty() ? "OK" : "FAIL");
 	return 0;
 }
 

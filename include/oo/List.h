@@ -99,7 +99,17 @@ public:
 	bool isNone(void) const { return (l_.size() == 0); }
 	void setNone(void) { clear(); }
 
-	void clear(void) { l_.clear(); }
+	// the swap trick frees all memory in the list
+	static void force_free(std::list<T>& l) {
+		std::list<T> tmp;
+		l.swap(tmp);
+		// stack unwinds, deleting tmp
+	}
+
+	void clear(void) {
+		force_free(l_);
+		l_.clear();
+	}
 
 	size_t len(void) const { return l_.size(); }
 

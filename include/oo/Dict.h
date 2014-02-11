@@ -80,7 +80,17 @@ public:
 	bool isNone(void) const { return (m_.size() == 0); }
 	void setNone(void) { clear(); }
 
-	void clear(void) { m_.clear(); }
+	// the swap trick frees all memory in the map
+	static void force_free(std::map<String, T>& m) {
+		std::map<String, T> tmp;
+		m.swap(tmp);
+		// stack unwinds, deleting tmp
+	}
+
+	void clear(void) {
+		force_free(m_);
+		m_.clear();
+	}
 
 	size_t len(void) const { return m_.size(); }
 	size_t cap(void) const { return len(); }

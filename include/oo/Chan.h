@@ -92,8 +92,16 @@ public:
 	bool isNone(void) const { return buffer.capacity() == 0; }
 	void setNone(void) { clear(); }
 
+	// the swap trick frees all memory in the vector
+	static void force_free(std::vector<T>& v) {
+		std::vector<T> tmp;
+		v.swap(tmp);
+		// stack unwinds, deleting tmp
+	}
+
 	void clear(void) {
 		// warning: it clears whether the mutex is locked or not
+		force_free(buffer);
 		buffer.clear();
 	}
 
