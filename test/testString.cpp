@@ -147,24 +147,13 @@ int main(void) {
 	s2 = None;
 	print("s2: assignment to None: %v  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 	print("s2.empty(): %s", s2.empty() ? "OK" : "FAIL");
-
-	if (!s2)
-		print("operator!(): OK");
-	else
-		print("FAIL: operator!();");
-	
-	if (s2 == None)
-		print("compare to None: OK");
-	else
-		print("FAIL: compare to None");
-
-	print();
+	print("operator!(): %s", (!s2) ? "OK" : "FAIL");
+	print("compare to None: %s", (s2 == None) ? "OK" : "FAIL");
 
 	String line = "";
 	print("empty string: \"%v\"", &line);
-
 	line = None;
-	print("null string: %v", &line);
+	print("null string: \"%v\"", &line);
 
 	return 0;
 }

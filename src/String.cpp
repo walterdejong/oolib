@@ -35,19 +35,15 @@
 namespace oo {
 
 const String kStringStripDefaultCharSet = String(" \t\r\n\v\f");
+const size_t kSmallestString = 15;
 
 
 String::String(const String& s) {
-	if (s.isNone()) {
-		s_len = s_cap = 0;
-		s_data = nullptr;
-	} else {
-		s_len = s.s_len;
-		s_cap = s.s_cap;
+	s_len = s.s_len;
+	s_cap = s.s_cap;
 
-		s_data = new char[s_cap];
-		std::memcpy(s_data, s.s_data, s_cap);
-	}
+	s_data = new char[s_cap];
+	std::memcpy(s_data, s.s_data, s_cap);
 }
 
 String::String(const std::string& s) {
@@ -61,8 +57,10 @@ String::String(const std::string& s) {
 
 String::String(const char *s) {
 	if (s == nullptr) {
-		s_len = s_cap = 0;
-		s_data = nullptr;
+		s_len = 0;
+		s_cap = kSmallestString;
+		s_data = new char[s_cap];
+		*s_data = 0;
 	} else {
 		s_cap = std::strlen(s) + 1;
 
@@ -74,10 +72,14 @@ String::String(const char *s) {
 }
 
 String::String(const rune *r) {
-	s_len = s_cap = 0;
-	s_data = nullptr;
-
-	if (r != nullptr) {
+	if (r == nullptr) {
+		s_len = 0;
+		s_cap = kSmallestString;
+		s_data = new char[s_cap];
+		*s_data = 0;
+	} else {
+		s_len = s_cap = 0;
+		s_data = nullptr;
 		grow(utf8_encoded_len(r) + 1);
 		utf8_encode(r, s_data, s_cap);
 		s_len = utf8_len(s_data);
@@ -89,7 +91,6 @@ String::String(rune code) {
 
 	s_len = s_cap = 0;
 	s_data = nullptr;
-
 	grow(utf8_encoded_len(r) + 1);
 	utf8_encode(r, s_data, s_cap);
 	s_len = utf8_len(s_data);
@@ -140,22 +141,11 @@ rune String::operator[](int idx) const {
 }
 
 String& String::operator+=(const String& s) {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!s.len()) {
 		return *this;
 	}
 
-	size_t l;
-	if (s_data == nullptr) {
-		l = 0;
-	} else {
-		l = std::strlen(s_data) + 1;
-		if (l > 0) {
-			l--;
-		}
-	}
+	size_t l = std::strlen(s_data);
 	size_t datalen_s = std::strlen(s.s_data) + 1;
 	grow(l + datalen_s);
 	std::memcpy(s_data + l, s.s_data, datalen_s);
@@ -165,23 +155,12 @@ String& String::operator+=(const String& s) {
 }
 
 String& String::operator+=(rune code) {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!code) {
 		return *this;
 	}
 
 	size_t n = utf8_encoded_size(code);
-	size_t l;
-	if (s_data == nullptr) {
-		l = 0;
-	} else {
-		l = std::strlen(s_data) + 1;
-		if (l > 0) {
-			l--;
-		}
-	}
+	size_t l = std::strlen(s_data);
 	grow(l + n + 1);
 
 	rune r[2] = { code, 0 };
@@ -194,9 +173,6 @@ String& String::operator+=(rune code) {
 }
 
 String& String::operator*=(int n) {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (n <= 1) {
 		return *this;
 	}
@@ -204,15 +180,7 @@ String& String::operator*=(int n) {
 		return *this;
 	}
 
-	size_t l;
-	if (s_data == nullptr) {
-		l = 0;
-	} else {
-		l = std::strlen(s_data) + 1;
-		if (l > 0) {
-			l--;
-		}
-	}
+	size_t l = std::strlen(s_data);
 	grow(l * n + 1);
 
 	s_len *= n;
@@ -230,9 +198,6 @@ String& String::operator*=(int n) {
 
 // default arguments start=0, end=0
 int String::find(rune r, int start, int end) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (start < 0) {
 		start += s_len;
 
@@ -271,9 +236,6 @@ int String::find(rune r, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::rfind(rune r, int start, int end) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (start < 0) {
 		start += s_len;
 
@@ -312,9 +274,6 @@ int String::rfind(rune r, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::find(const String& s, int start, int end) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (start < 0) {
 		start += s_len;
 
@@ -360,9 +319,6 @@ int String::find(const String& s, int start, int end) const {
 
 // default arguments start=0, end=0
 int String::rfind(const String& s, int start, int end) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (start < 0) {
 		start += s_len;
 
@@ -408,9 +364,6 @@ int String::rfind(const String& s, int start, int end) const {
 
 // default argument is a default strippin charset
 String String::strip(const String& charset) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!s_len) {
 		return *this;
 	}
@@ -460,9 +413,6 @@ String String::strip(const String& charset) const {
 }
 
 String String::lstrip(const String& charset) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!s_len) {
 		return *this;
 	}
@@ -494,9 +444,6 @@ String String::lstrip(const String& charset) const {
 }
 
 String String::rstrip(const String& charset) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!s_len) {
 		return *this;
 	}
@@ -528,89 +475,64 @@ String String::rstrip(const String& charset) const {
 }
 
 String String::upper(void) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	String s = *this;
 
 	char *p = s.s_data;
-	if (p != nullptr) {
-		while(*p) {
-			if (*p >= 'a' && *p <= 'z') {
-				*p -= ' ';
-			}
-			p++;
+	while(*p) {
+		if (*p >= 'a' && *p <= 'z') {
+			*p -= ' ';
 		}
+		p++;
 	}
 	return s;
 }
 
 String String::lower(void) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	String s = *this;
 
 	char *p = s.s_data;
-	if (p != nullptr) {
-		while(*p) {
-			if (*p >= 'A' && *p <= 'Z') {
-				*p += ' ';
-			}
-			p++;
+	while(*p) {
+		if (*p >= 'A' && *p <= 'Z') {
+			*p += ' ';
 		}
+		p++;
 	}
 	return s;
 }
 
 String String::capitalize(void) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	String s = *this;
 
 	char *p = s.s_data;
-	if (p != nullptr && *p >= 'a' && *p <= 'z') {
+	if (*p >= 'a' && *p <= 'z') {
 		*p -= ' ';
 	}
 	return s;
 }
 
 String String::capwords(void) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	String s = *this;
 
 	char *p = s.s_data;
-	if (p != nullptr) {
-		bool cap_next = true;
+	bool cap_next = true;
 
-		while(*p) {
-			if (cap_next) {
-				if (std::isalnum(*p)) {
-					*p = std::toupper(*p);
-					cap_next = false;
-				}
-			} else {
-				if (!std::isalnum(*p)) {
-					cap_next = true;
-				}
+	while(*p) {
+		if (cap_next) {
+			if (std::isalnum(*p)) {
+				*p = std::toupper(*p);
+				cap_next = false;
 			}
-			p++;
+		} else {
+			if (!std::isalnum(*p)) {
+				cap_next = true;
+			}
 		}
+		p++;
 	}
 	return s;
 }
 
 String String::slice(int idx1, int idx2) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (idx1 < 0) {
 		idx1 += len();
 
@@ -641,9 +563,6 @@ String String::slice(int idx1, int idx2) const {
 
 // default argument n == -1 (replace all)
 String String::replace(const String& sub, const String& repl, int n) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!n) {
 		return *this;
 	}
@@ -672,9 +591,6 @@ String String::replace(const String& sub, const String& repl, int n) const {
 
 // default argument sep = ' '
 Array<String> String::split(rune sep) const {
-	if (isNone()) {
-		throw ReferenceError();
-	}
 	if (!s_len) {
 		return Array<String>();
 	}
@@ -757,22 +673,14 @@ String String::join(const Array<String>& a, const String& sep) const {
 	if (!a.len()) {
 		return String();
 	}
-	if (sep.isNone()) {
-		throw ReferenceError();
-	}
 
 	// first calculate total size
 
 	size_t sep_size = std::strlen(sep.c_str());
 	size_t total = 0;
-	const char *p;
 
 	for(size_t i = 0; i < a.len(); i++) {
-		p = a[i].c_str();
-		if (p == nullptr) {
-			throw ReferenceError();
-		}
-		total += std::strlen(p) + sep_size;
+		total += std::strlen(a[i].c_str()) + sep_size;
 	}
 	total -= sep_size;
 
@@ -785,12 +693,8 @@ String String::join(const Array<String>& a, const String& sep) const {
 		std::strcpy(s.s_data, a[0].s_data);
 	}
 	for(size_t i = 1; i < a.len(); i++) {
-		if (sep.s_data) {
-			std::strcat(s.s_data, sep.s_data);
-		}
-		if (a[i].s_data) {
-			std::strcat(s.s_data, a[i].s_data);
-		}
+		std::strcat(s.s_data, sep.s_data);
+		std::strcat(s.s_data, a[i].s_data);
 	}
 	s.s_len = utf8_len(s.s_data);
 	return s;
@@ -988,8 +892,9 @@ void String::utf8_encode(const rune *r, char *s, size_t n) {
 						*s++ = ((code & 0xfc0) >> 6) | 0x80;
 						*s++ = (code & 0x3f) | 0x80;
 						n -= 4;
-					} else
+					} else {
 						throw StringEncodingError();
+					}
 				}
 			}
 		}

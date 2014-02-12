@@ -49,16 +49,20 @@ namespace oo {
 class String;
 
 extern const String kStringStripDefaultCharSet;
+extern const size_t kSmallestString;
 
 
 class String : public Base, public Sizeable, eq_less_comparable<String> {
 public:
-	String() : Base(), Sizeable(), s_len(0), s_cap(1) {
-		s_data = new char[1];
+	String() : Base(), Sizeable(), s_len(0), s_cap(kSmallestString) {
+		s_data = new char[kSmallestString];
 		*s_data = 0;
 	}
 
-	String(const NoneObject&) : Base(), Sizeable(), s_len(0), s_cap(0), s_data(nullptr) { }
+	String(const NoneObject&) : Base(), Sizeable(), s_len(0), s_cap(kSmallestString) {
+		s_data = new char[kSmallestString];
+		*s_data = 0;
+	}
 
 	String(const String&);
 	String(const std::string&);
@@ -93,40 +97,23 @@ public:
 	using Base::operator==;
 	using Base::operator!=;
 
-	// FIXME setting a string to None should just clear it
-	// FIXME and turn it into an empty string: ""
-	// FIXME this changes how strings are used
-	// FIXME and no more checks everywhere for isNone()
-
-	// FIXME This idea/style changes the usefulness of 'None'
-	// FIXME so rethink 'None' or maybe just take it out
-
-	bool isNone(void) const { return (s_data == nullptr); }
+	// a string that is "None" is just an empty string
+	bool isNone(void) const { return !s_len; }
 	void setNone(void) { clear(); }
 
 	void clear(void) {
-		if (s_data != nullptr) {
-			delete [] s_data;
-			s_data = nullptr;
-		}
-		s_len = s_cap = 0;
+		// make it an empty string
+		String tmp;
+		this->swap(*this, tmp);
 	}
 
 	std::string repr(void) const {
-		if (isNone()) {
-			return "(None)";
-		}
 		std::stringstream ss;
 		ss << '"' << s_data << '"';
 		return ss.str();
 	}
 
-	std::string str(void) const {
-		if (isNone()) {
-			return "(none)";
-		}
-		return std::string(s_data);
-	}
+	std::string str(void) const { return std::string(s_data); }
 
 	size_t len(void) const { return s_len; }
 	size_t cap(void) const { return s_cap; }
