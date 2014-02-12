@@ -47,9 +47,9 @@ public:
 
 	virtual std::string repr(void) const = 0;
 	virtual std::string str(void) const {
-		if (isNone())
+		if (isNone()) {
 			return "(None)";
-
+		}
 		return repr();
 	}
 
