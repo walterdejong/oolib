@@ -283,7 +283,7 @@ int String::find(const String& s, int start, int end) const {
 	}
 
 	// end must be at least at 'distance' of length of search string
-	end -= s.len();		// s.len() also checks for 'None'
+	end -= s.len();
 
 	if (end <= 0) {
 		end += s_len;
@@ -328,7 +328,7 @@ int String::rfind(const String& s, int start, int end) const {
 	}
 
 	// end must be at least at 'distance' of length of search string
-	end -= s.len();		// s.len() also checks for 'None'
+	end -= s.len();
 
 	if (end <= 0) {
 		end += s_len;
