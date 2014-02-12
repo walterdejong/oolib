@@ -115,7 +115,7 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) {
 
 // this is a stanza for defining new Error types
 
-#define define_error(x,y)		\
+#define oo_define_error(x,y)	\
 	extern const int k##x ;		\
 	class x : public Error {									\
 	public:														\
@@ -137,16 +137,16 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) {
 		using Base::operator!=;		\
 	}
 
-define_error(MemoryError, "out of memory");
-define_error(IndexError, "index out of range");
-define_error(ValueError, "invalid value");
-define_error(TypeError, "invalid type in operation");
-define_error(ZeroDivisionError, "division by zero");
-define_error(ReferenceError, "null pointer reference");
-define_error(IOError, "I/O error");
-define_error(RuntimeError, "runtime error");	// often used for other kind of errors
-define_error(OSError, "OS error");
-define_error(StringEncodingError, "string encoding error");
+oo_define_error(MemoryError, "out of memory");
+oo_define_error(IndexError, "index out of range");
+oo_define_error(ValueError, "invalid value");
+oo_define_error(TypeError, "invalid type in operation");
+oo_define_error(ZeroDivisionError, "division by zero");
+oo_define_error(ReferenceError, "null pointer reference");
+oo_define_error(IOError, "I/O error");
+oo_define_error(RuntimeError, "runtime error");	// often used for other kind of errors
+oo_define_error(OSError, "OS error");
+oo_define_error(StringEncodingError, "string encoding error");
 
 void panic(const Error&);
 void panic(const std::string&);
