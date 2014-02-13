@@ -141,9 +141,6 @@ public:
 	}
 
 	bool operator==(const String& s) const {
-		if (isNone()) {
-			return false;
-		}
 		if (s_len != s.s_len) {
 			return false;
 		}
@@ -151,9 +148,6 @@ public:
 	}
 
 	bool operator<(const String& s) const {
-		if (isNone()) {
-			throw ReferenceError();
-		}
 		return (std::strcmp(s_data, s.s_data) < 0);
 	}
 
