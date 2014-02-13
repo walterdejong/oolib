@@ -75,8 +75,9 @@ public:
 	static ArgvObject& instance(void);
 
 	~ArgvObject() {
-		if (s_prognam != nullptr)
+		if (s_prognam != nullptr) {
 			delete [] s_prognam;
+		}
 	}
 
 	// these assign and compare to None
