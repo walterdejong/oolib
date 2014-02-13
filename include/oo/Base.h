@@ -82,6 +82,26 @@ inline std::ostream& operator<<(std::ostream& os, const Base& t) {
 }
 */
 
+// an object is deleted by swapping it with an empty instance
+// requires method swap(a,b)
+template <class T>
+void del(T& a) {
+	T tmp;
+	std::swap(a, tmp);
+}
+
+// an object is undefined when it equals an empty instance
+// requires operator==()
+template <class T>
+bool undefined(const T& a) {
+	return a == T();
+}
+
+template <class T>
+bool defined(const T& a) {
+	return !undefined(a);
+}
+
 }	// namespace
 
 #endif	// OOBASE_H_WJ112
