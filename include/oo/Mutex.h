@@ -40,8 +40,7 @@
 namespace oo {
 
 typedef enum {
-	MutexNone = 0,
-	MutexUnlocked,
+	MutexUnlocked = 0,
 	MutexLocked
 } MutexState;
 
@@ -52,32 +51,18 @@ class Mutex : public Base {
 public:
 	Mutex() : Base(), state(MutexUnlocked), m_() { }
 
-	Mutex(const NoneObject&) : Base(), state(MutexNone), m_() { }
-
-	virtual ~Mutex() { setNone(); }
-
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
+	virtual ~Mutex() { unlock(); }
 
 	virtual std::string repr(void) const {
-		if (isNone())
-			return "<Mutex>";
-
-		if (islocked())
+		if (islocked()) {
 			return "<Mutex: locked>";
-
-		return "<Mutex: unlocked>";
+		}
+		return "<Mutex>";
 	}
 
-	bool isNone(void) const { return (state == MutexNone); }
-	void setNone(void) {
-		state = MutexNone;
-		m_.unlock();
-	}
 	void clear(void) { unlock(); }
+
+	bool operator!(void) const { return (state == MutexUnlocked); }
 
 	virtual void lock(void);
 	virtual void unlock(void);

@@ -80,17 +80,8 @@ public:
 		}
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const { return "<Argv>"; }
 	std::string str(void) const;
-
-	bool isNone(void) const { return (s_argc == 0); }
-	void setNone(void) { clear(); }
 
 	void clear(void) {
 		s_argc = 0;

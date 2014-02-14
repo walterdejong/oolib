@@ -36,10 +36,6 @@ int main(void) {
 
 	print("error: %q  --  %v", &err, &err);
 
-	err = None;
-	if (!err)
-		print("err equals None");
-
 //	panic("help!");
 	panic(MemoryError(101, "this a test"));
 

@@ -31,7 +31,6 @@
 #define OODICT_H_WJ112
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Sizeable.h"
 #include "oo/Error.h"
 #include "oo/String.h"
@@ -50,7 +49,6 @@ public:
 	typedef T value_type;
 
 	Dict() : Base(), Sizeable(), m_(std::map<String, T>()) { }
-	Dict(const NoneObject& none) : Base(), Sizeable(), m_(std::map<String, T>()) { }
 
 	Dict(const Dict& d) : Base(), Sizeable(), m_(std::map<String, T>(d.m_)) { }
 
@@ -69,16 +67,7 @@ public:
 		std::swap(a.m_, b.m_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const;
-
-	bool isNone(void) const { return (m_.size() == 0); }
-	void setNone(void) { clear(); }
 
 	// the swap trick frees all memory in the map
 	static void force_free(std::map<String, T>& m) {
@@ -94,6 +83,8 @@ public:
 
 	size_t len(void) const { return m_.size(); }
 	size_t cap(void) const { return len(); }
+
+	bool operator!(void) const { return this->empty(); }
 
 	//	this never throws KeyError (like it does in Python)
 	//	instead, any non-existing keys will create a new (empty) item in the map

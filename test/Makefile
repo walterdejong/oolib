@@ -55,7 +55,7 @@ LIBS=-loo
 
 CXXFILES=$(wildcard *.cpp)
 
-TARGETS=testNone testError testString testArray testList testDict testPrint \
+TARGETS=testError testString testArray testList testDict testPrint \
 	testFile testGo testDefer testMutex testChan testCond testSem \
 	testRef testDir testArgv testSock testDaemon testObserver testSet \
 	testFunctor
@@ -63,9 +63,6 @@ TARGETS=testNone testError testString testArray testList testDict testPrint \
 all: .depend $(TARGETS)
 
 include .depend
-
-testNone: testNone.o
-	$(CXX) $(LFLAGS) testNone.o -o testNone $(LIBS)
 
 testError: testError.o
 	$(CXX) $(LFLAGS) testError.o -o testError $(LIBS)

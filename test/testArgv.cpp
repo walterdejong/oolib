@@ -100,13 +100,6 @@ int main(int argc, char *argv[]) {
 	foreach(i, Argv.args())
 		print(" args[%u] %s", i, Argv.args()[i]);
 
-	print("\nsetting Argv to None");
-	Argv = None;
-
-	print("len(Argv): %zu", len(Argv));
-	print("prognam: %s", Argv.prognam());
-	print("command: %s", Argv.command());
-	print("Argv   : %v", &Argv);
 	return 0;
 }
 

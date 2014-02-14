@@ -54,8 +54,6 @@ public:
 		swap(*this, s);
 	}
 
-	Sem(const NoneObject&) : Base(), name_(), sem_() { }
-
 	virtual ~Sem() {
 		close();
 		unlink();
@@ -71,12 +69,6 @@ public:
 		std::swap(a.sem_, b.sem_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	virtual std::string repr(void) const {
 		if (name_.empty()) {
 			return "<Sem>";
@@ -86,10 +78,9 @@ public:
 		return ss.str();
 	}
 
-	bool isNone(void) const { return (sem_.get() == nullptr); }
-	void setNone(void) { clear(); }
-
 	void clear(void) { close(); }
+
+	bool operator!(void) const { return (sem_.get() == nullptr); }
 
 	void close(void) {
 		if (sem_.get() != nullptr) {

@@ -144,15 +144,18 @@ int main(void) {
 	print("lt: %s", (s1 < s2) ? "OK" : "FAIL");
 	print("gt: %s", (s2 > s1) ? "OK" : "FAIL");
 
-	s2 = None;
-	print("s2: assignment to None: %v  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+//	s2 = None;
+//	print("s2: assignment to None: %v  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	del(s2);
 	print("s2.empty(): %s", s2.empty() ? "OK" : "FAIL");
 	print("operator!(): %s", (!s2) ? "OK" : "FAIL");
-	print("compare to None: %s", (s2 == None) ? "OK" : "FAIL");
+//	print("compare to None: %s", (s2 == None) ? "OK" : "FAIL");
+	print("compare to empty: %s", (s2 == String()) ? "OK" : "FAIL");
 
 	String line = "";
 	print("empty string: \"%v\"", &line);
-	line = None;
+//	line = None;
+	del(line);
 	print("null string: \"%v\"", &line);
 
 	return 0;

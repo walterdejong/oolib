@@ -39,25 +39,23 @@
 
 namespace oo {
 
-// Ref is the same as a shared_ptr, but it can be None
+// Ref is the same as a shared_ptr
 
 template <typename T>
 class Ref : public Base {
 public:
-	Ref() : Base(), r_(), isnone_(true) { }
+	Ref() : Base(), r_() { }
 
 	// warning: this is NOT for arbitrary pointers ... only for "new T"'s
-	Ref(T *p) : Base(), r_(p), isnone_(false) {
+	Ref(T *p) : Base(), r_(p) {
 		if (p == nullptr) {
 			throw ValueError();
 		}
 	}
 
-	Ref(const Ref<T>& r) : Base(), r_(r.r_), isnone_(r.isnone_) { }
+	Ref(const Ref<T>& r) : Base(), r_(r.r_) { }
 
 	Ref(Ref<T>&& r) : Ref() { swap(*this, r); }
-
-	Ref(const NoneObject& none) : Base(), r_(), isnone_(true) { }
 
 //	virtual ~Ref() { }
 
@@ -68,54 +66,41 @@ public:
 
 	static void swap(Ref<T>& a, Ref<T>& b) {
 		std::swap(a.r_, b.r_);
-		std::swap(a.isnone_, b.isnone_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
-	bool isNone(void) const { return isnone_; }
-	void setNone(void) {
+	void clear(void) {
 		r_ = std::shared_ptr<T>();
-		isnone_ = true;
 	}
 
 	virtual std::string repr(void) const { return "<Ref>"; }
 
 	virtual std::string str(void) const {
-		if (isnone_)
-			return "(None)";
-
+		if (r_.get() == nullptr) {
+			return "(null)";
+		}
 		return repr();
 	}
 
-	T& operator*(void) const {
-		if (isnone_)
-			throw ReferenceError();
+	bool operator!(void) const { return (r_.get() == nullptr); }
 
+	T& operator*(void) const {
+		if (r_.get() == nullptr) {
+			throw ReferenceError();
+		}
 		return *r_;
 	}
 
 	T *operator->(void) const {
-		if (isnone_)
+		if (r_.get() == nullptr) {
 			throw ReferenceError();
-
+		}
 		return r_.operator->();
 	}
 
-	T *get(void) const {
-		if (isnone_)
-			return nullptr;
-
-		return r_.get();
-	}
+	T *get(void) const { return r_.get(); }
 
 private:
 	std::shared_ptr<T> r_;
-	bool isnone_;
 
 	template <typename U>
 	friend std::ostream& operator<<(std::ostream&, const Ref<U>&);

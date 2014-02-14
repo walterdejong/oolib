@@ -68,7 +68,7 @@ Array<String> File::readlines(void) {
 
 	while(true) {
 		s = this->readline();
-		if (!s) {
+		if (s.empty()) {
 			break;
 		}
 		a.append(s);
@@ -97,16 +97,16 @@ size_t File::read(void *buf, size_t n) {
 }
 
 void File::write(const String& s) {
-	if (s.isNone()) {
-		throw ValueError();
-	}
-
-	if (this->isNone()) {
+	if (w_.get() == nullptr) {
 		if (this == &Stdout || this == &Stderr) {
 			// it's OK to close stdout/stderr and still write to it
 			return;
 		}
 		throw IOError("write to a closed file");
+	}
+
+	if (s.empty()) {
+		return;
 	}
 
 	std::string str = s.str();
@@ -119,10 +119,6 @@ void File::write(const String& s) {
 }
 
 void File::writelines(const Array<String>& a) {
-	if (a.isNone()) {
-		throw ValueError();
-	}
-
 	for(size_t i = 0; i < a.len(); i++) {
 		this->write(a[i]);
 	}
@@ -132,16 +128,16 @@ void File::write(void *buf, size_t n) {
 	if (buf == nullptr) {
 		throw ReferenceError();
 	}
-	if (!n) {
-		return;
-	}
-
-	if (this->isNone()) {
+	if (w_.get() == nullptr) {
 		if (this == &Stdout || this == &Stderr) {
 			// it's OK to close stdout/stderr and still write to it
 			return;
 		}
 		throw IOError("write to a closed file");
+	}
+
+	if (!n) {
+		return;
 	}
 
 	size_t bytes_written = std::fwrite(buf, 1, n, w_.get());

@@ -31,59 +31,17 @@
 #define OOBASE_H_WJ112
 
 #include <string>
-#include <ostream>
 
 namespace oo {
 
-class NoneObject;
-
 class Base {
 public:
-//	Base() { }
-	virtual ~Base() { }
-
-	// these are reasonable default methods, but you should really override them
-	// to have them make sense
-
 	virtual std::string repr(void) const = 0;
-	virtual std::string str(void) const {
-		if (isNone()) {
-			return "(None)";
-		}
-		return repr();
-	}
-
-	/*
-		remember to use these operators in derived classes ... like:
-
-		 using Base::operator=;
-		 using Base::operator!;
-		 using Base::operator==;
-		 using Base::operator!=;
-
-		override isNone() and clear() to adjust functionality
-	*/
-	virtual bool isNone(void) const = 0;
-	bool operator!(void) const { return isNone(); }
-	bool operator==(const NoneObject&) const { return isNone(); }
-	bool operator!=(const NoneObject&) const { return !isNone(); }
-
-	virtual void setNone(void) = 0;
-	Base& operator=(const NoneObject&) { setNone(); return *this; }
+	virtual std::string str(void) const { return repr(); }
 };
 
-/*
-	You'd think that this would automatically work for all derived classes,
-	but it doesn't
-
-inline std::ostream& operator<<(std::ostream& os, const Base& t) {
-	os << t.str();
-	return os;
-}
-*/
-
 // an object is deleted by swapping it with an empty instance
-// requires method swap(a,b)
+// This requires method swap(a,b)
 template <class T>
 void del(T& a) {
 	T tmp;
@@ -91,7 +49,7 @@ void del(T& a) {
 }
 
 // an object is undefined when it equals an empty instance
-// requires operator==()
+// This requires operator==()
 template <class T>
 bool undefined(const T& a) {
 	return a == T();

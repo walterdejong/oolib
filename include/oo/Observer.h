@@ -44,7 +44,7 @@ public:
 
 class NotificationCenter {
 public:
-	~NotificationCenter() { all_observers = None; }
+	~NotificationCenter() { all_observers.clear(); }
 
 	void add_observer(Observer&, const char *);
 	void remove_observer(Observer&, const char * = nullptr);

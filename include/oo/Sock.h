@@ -53,8 +53,6 @@ class Sock : public Base {
 public:
 	Sock() : Base(), f_() { }
 
-	Sock(const NoneObject&) : Base(), f_() { }
-
 	Sock(const Sock& s) : Base(), f_(s.f_) { }
 
 	Sock(Sock&& s) : Sock() { swap(*this, s); }
@@ -62,12 +60,6 @@ public:
 	virtual ~Sock() {
 		clear();
 	}
-
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
 
 	Sock& operator=(Sock s) {
 		swap(*this, s);
@@ -80,8 +72,7 @@ public:
 
 	std::string repr(void) const { return "<Sock>"; }
 
-	bool isNone(void) const { return f_.isNone(); }
-	void setNone(void) { clear(); }
+	bool operator!(void) const { return f_.is_closed(); }
 
 	void clear(void) {
 		shutdown();
@@ -89,18 +80,20 @@ public:
 	}
 
 	void shutdown(int how = SHUT_RDWR) {
-		if (!f_.isNone()) {
+		if (!f_.is_closed()) {
 			f_.flush();
 			::shutdown(f_.fileno(), how);
 		}
 	}
 
 	void close(void) {
-		if (!f_.isNone()) {
+		if (!f_.is_closed()) {
 			f_.flush();
 			f_.close();
 		}
 	}
+
+	bool is_closed(void) const { return f_.is_closed(); }
 
 	static int getprotobyname(const char *name = nullptr);
 	// note, these use real port numbers, not in network byte order

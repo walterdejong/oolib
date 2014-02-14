@@ -42,7 +42,6 @@
 #include "oo/Functor.h"
 #include "oo/List.h"
 #include "oo/Mutex.h"
-#include "oo/None.h"
 #include "oo/Observer.h"
 #include "oo/Ref.h"
 #include "oo/Sem.h"

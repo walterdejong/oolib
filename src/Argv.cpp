@@ -51,8 +51,9 @@ ArgvObject& ArgvObject::instance(void) {
 }
 
 std::string ArgvObject::str(void) const {
-	if (isNone()) {
-		return "(None)";
+	if (s_argc <= 0) {
+		// uninitialized ArgvObject
+		throw ValueError();
 	}
 
 	std::stringstream ss;

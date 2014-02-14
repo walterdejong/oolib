@@ -118,8 +118,8 @@ void String::grow(size_t n) {
 }
 
 rune String::operator[](int idx) const {
-	if (isNone()) {
-		throw ReferenceError();
+	if (!s_len) {
+		throw IndexError();
 	}
 	if (idx < 0) {
 		idx += s_len;
@@ -646,7 +646,7 @@ String String::join(const Array<String>& a, rune sep) const {
 	total -= rune_size;
 
 	// make the joined string
-	String s = None;
+	String s;
 	s.grow(total + 1);
 	s.s_data[0] = 0;
 
@@ -685,7 +685,7 @@ String String::join(const Array<String>& a, const String& sep) const {
 	total -= sep_size;
 
 	// make the joined string
-	String s = None;
+	String s;
 	s.grow(total + 1);
 	s.s_data[0] = 0;
 

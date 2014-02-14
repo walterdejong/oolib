@@ -59,11 +59,6 @@ public:
 		*s_data = 0;
 	}
 
-	String(const NoneObject&) : Base(), Sizeable(), s_len(0), s_cap(kSmallestString) {
-		s_data = new char[kSmallestString];
-		*s_data = 0;
-	}
-
 	String(const String&);
 	String(const std::string&);
 	String(const char *);
@@ -90,16 +85,6 @@ public:
 		std::swap(a.s_cap, b.s_cap);
 		std::swap(a.s_data, b.s_data);
 	}
-
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
-	// a string that is "None" is just an empty string
-	bool isNone(void) const { return !s_len; }
-	void setNone(void) { clear(); }
 
 	void clear(void) {
 		// make it an empty string
@@ -150,6 +135,8 @@ public:
 	bool operator<(const String& s) const {
 		return (std::strcmp(s_data, s.s_data) < 0);
 	}
+
+	bool operator!(void) const { return s_len == 0; }
 
 	int find(rune, int=0, int=0) const;
 	int rfind(rune, int=0, int=0) const;
@@ -230,9 +217,6 @@ inline T convert(const char *s) {
 
 template <typename T>
 inline T convert(const String& s) {
-	if (s.isNone()) {
-		throw ReferenceError();
-	}
 	return convert<T>(s.str());
 }
 

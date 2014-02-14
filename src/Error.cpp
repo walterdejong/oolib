@@ -31,7 +31,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <sstream>
 
 namespace oo {
 
@@ -65,27 +64,6 @@ static void terminate_handler(void) {
 		std::cout << std::endl << "fatal error: uncaught exception" << std::endl << std::endl;
 	}
 	std::abort();
-}
-
-
-std::string Error::repr(void) const {
-	std::stringstream ss;
-	ss << "<" << errname << ": " << errcode << ", \"" << errmsg << "\">";
-	return ss.str();
-}
-
-std::string Error::str(void) const {
-	if (isNone()) {
-		return "(None)";
-	}
-/*
-	std::stringstream ss;
-
-	ss << errname << ": " << errmsg;
-
-	return ss.str();
-*/
-	return errname + ": " + errmsg;
 }
 
 void panic(const Error& e) {

@@ -31,7 +31,6 @@
 #define OOFILE_H_WJ112
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/String.h"
 #include "oo/Error.h"
 
@@ -66,21 +65,14 @@ public:
 
 	File(File&& f) : File() { swap(*this, f); }
 
-	File(const NoneObject&) : Base(), name_(), mode_(),
-		w_(std::shared_ptr<FILE>()), is_pipe_(false) { }
-
 	~File() { this->close(); }
-
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
 
 	File& operator=(File f) {
 		swap(*this, f);
 		return *this;
 	}
+
+	bool operator!(void) const { return this->is_closed(); }
 
 	static void swap(File& a, File& b) {
 		std::swap(a.name_, b.name_);
@@ -97,9 +89,6 @@ public:
 		}
 		return "<File>";
 	}
-
-	bool isNone(void) const { return (w_.get() == nullptr); }
-	void setNone(void) { this->clear(); }
 
 	void clear(void) {
 		this->close();
@@ -180,6 +169,8 @@ public:
 		w_ = std::shared_ptr<FILE>();	// destroys previous w_
 		is_pipe_ = false;
 	}
+
+	bool is_closed(void) const { return w_.get() == nullptr; }
 
 	String readline(void);
 	Array<String> readlines(void);

@@ -31,7 +31,6 @@
 #define OOLIST_H_WJ112
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Sequence.h"
 #include "oo/Error.h"
 #include "oo/compare.h"
@@ -61,8 +60,6 @@ public:
 
 	List() : Base(), Sequence<T>(), l_(std::list<T>()) { }
 
-	List(const NoneObject& none) : Base(), Sequence<T>(), l_(std::list<T>()) { }
-
 	List(const List<T>& a) : Base(), Sequence<T>(), l_(a.l_) { }
 
 	List(List<T>&& a) : List() {
@@ -88,16 +85,7 @@ public:
 		std::swap(a.l_, b.l_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const;
-
-	bool isNone(void) const { return (l_.size() == 0); }
-	void setNone(void) { clear(); }
 
 	// the swap trick frees all memory in the list
 	static void force_free(std::list<T>& l) {
@@ -112,6 +100,8 @@ public:
 	}
 
 	size_t len(void) const { return l_.size(); }
+
+	bool operator!(void) const { return this->empty(); }
 
 	T& operator[](int idx);
 	const T& operator[](int idx) const;
