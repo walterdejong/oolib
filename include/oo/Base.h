@@ -45,14 +45,23 @@ public:
 /*
 	an object is deleted by swapping it with an empty instance
 	This requires method swap(a,b)
-
-	Note that you can test for deleted objects either by checking operator!()
-	or by checking that it equals an empty object (a == T())
 */
 template <class T>
 void del(T& a) {
 	T tmp;
 	std::swap(a, tmp);
+}
+
+/*
+	after "deleting" an object with "del()", it should be "undefined"
+	Mind that objects that are "empty()" will often respond as "undefined"
+*/
+inline bool undefined(const Base& a) {
+	return (!a);
+}
+
+inline bool defined(const Base& a) {
+	return !undefined(a);
 }
 
 }	// namespace
