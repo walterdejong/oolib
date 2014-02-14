@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 	remove_observer(o);
 
 	notify(Event1);	// not seen; there are no observers
-	notify(Event2);	// not seen; there are no observers
+	notify(Event2);
 
 	return 0;
 }
