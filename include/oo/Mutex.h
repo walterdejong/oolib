@@ -51,6 +51,8 @@ class Mutex : public Base {
 public:
 	Mutex() : Base(), state(MutexUnlocked), m_() { }
 
+	// Note: Mutex is non-copyable
+
 	virtual ~Mutex() { unlock(); }
 
 	virtual std::string repr(void) const {
