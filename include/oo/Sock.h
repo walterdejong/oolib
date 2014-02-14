@@ -72,7 +72,7 @@ public:
 
 	std::string repr(void) const { return "<Sock>"; }
 
-	bool operator!(void) const { return f_.is_closed(); }
+	bool operator!(void) const { return f_.isclosed(); }
 
 	void clear(void) {
 		shutdown();
@@ -80,20 +80,20 @@ public:
 	}
 
 	void shutdown(int how = SHUT_RDWR) {
-		if (!f_.is_closed()) {
+		if (!f_.isclosed()) {
 			f_.flush();
 			::shutdown(f_.fileno(), how);
 		}
 	}
 
 	void close(void) {
-		if (!f_.is_closed()) {
+		if (!f_.isclosed()) {
 			f_.flush();
 			f_.close();
 		}
 	}
 
-	bool is_closed(void) const { return f_.is_closed(); }
+	bool isclosed(void) const { return f_.isclosed(); }
 
 	static int getprotobyname(const char *name = nullptr);
 	// note, these use real port numbers, not in network byte order

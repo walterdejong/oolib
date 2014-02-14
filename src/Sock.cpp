@@ -196,7 +196,7 @@ bool Sock::connect(const char *ipaddr, const char *serv) {
 		throw ReferenceError();
 	}
 
-	if (!this->is_closed()) {
+	if (!this->isclosed()) {
 		throw IOError("socket is already in use");
 	}
 
@@ -241,7 +241,7 @@ bool Sock::connect(const char *ipaddr, const char *serv) {
 }
 
 Sock Sock::accept(void) const {
-	if (this->is_closed()) {
+	if (this->isclosed()) {
 		throw IOError("accept() called on a non-listening socket");
 	}
 
@@ -269,7 +269,7 @@ Sock Sock::accept(void) const {
 }
 
 String Sock::remoteaddr(void) const {
-	if (this->is_closed()) {
+	if (this->isclosed()) {
 		throw IOError("can not get remote address of an unconnected socket");
 	}
 

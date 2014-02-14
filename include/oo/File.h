@@ -72,7 +72,7 @@ public:
 		return *this;
 	}
 
-	bool operator!(void) const { return this->is_closed(); }
+	bool operator!(void) const { return this->isclosed(); }
 
 	static void swap(File& a, File& b) {
 		std::swap(a.name_, b.name_);
@@ -170,7 +170,7 @@ public:
 		is_pipe_ = false;
 	}
 
-	bool is_closed(void) const { return w_.get() == nullptr; }
+	bool isclosed(void) const { return w_.get() == nullptr; }
 
 	String readline(void);
 	Array<String> readlines(void);
