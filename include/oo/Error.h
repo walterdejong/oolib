@@ -95,6 +95,8 @@ public:
 		errmsg = "unknown error";
 	}
 
+	bool operator!(void) const { return (errcode == 0); }
+
 	int code(void) const { return errcode; }
 	std::string name(void) const { return errname; }
 	std::string message(void) const { return errmsg; }

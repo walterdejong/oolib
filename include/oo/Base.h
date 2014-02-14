@@ -38,26 +38,21 @@ class Base {
 public:
 	virtual std::string repr(void) const = 0;
 	virtual std::string str(void) const { return repr(); }
+
+	virtual bool operator!(void) const = 0;
 };
 
-// an object is deleted by swapping it with an empty instance
-// This requires method swap(a,b)
+/*
+	an object is deleted by swapping it with an empty instance
+	This requires method swap(a,b)
+
+	Note that you can test for deleted objects either by checking operator!()
+	or by checking that it equals an empty object (a == T())
+*/
 template <class T>
 void del(T& a) {
 	T tmp;
 	std::swap(a, tmp);
-}
-
-// an object is undefined when it equals an empty instance
-// This requires operator==()
-template <class T>
-bool undefined(const T& a) {
-	return a == T();
-}
-
-template <class T>
-bool defined(const T& a) {
-	return !undefined(a);
 }
 
 }	// namespace

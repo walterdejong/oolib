@@ -75,7 +75,7 @@ public:
 
 	std::string repr(void) const { return "<Functor>"; }
 
-	bool operator!(void) { return (f_ == nullptr); }
+	bool operator!(void) const { return (f_ == nullptr); }
 
 	void operator()(void) const {
 		if (f_ == nullptr) {
