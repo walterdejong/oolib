@@ -1,5 +1,5 @@
 /*
-	ooFunctior.h	WJ114
+	ooFunctor.h	WJ114
 
 	- Functor only accepts void functions (for now)
 	- it does accept variable arguments
@@ -34,7 +34,6 @@
 #define OOFUNCTOR_H_WJ114
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Error.h"
 
 #include <functional>
@@ -45,7 +44,6 @@ namespace oo {
 class Functor : public Base {
 public:
 	Functor() : Base(), f_(nullptr) { }
-	Functor(const NoneObject& none) : Base(), f_(nullptr) { }
 
 	Functor(const Functor& f) : Base(), f_(f.f_) { }
 
@@ -59,7 +57,7 @@ public:
 		swap(*this, f);
 	}
 
-//	~Set() { }
+//	~Functor() { }
 
 	Functor& operator=(Functor f) {
 		swap(*this, f);
@@ -75,16 +73,9 @@ public:
 		std::swap(a.f_, b.f_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const { return "<Functor>"; }
 
-	bool isNone(void) const { return f_ == nullptr; }
-	void setNone(void) { f_ = nullptr; }
+	bool operator!(void) const { return (f_ == nullptr); }
 
 	void operator()(void) const {
 		if (f_ == nullptr) {

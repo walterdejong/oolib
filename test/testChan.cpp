@@ -68,11 +68,9 @@ int main(void) {
 
 	print("len() : %zu  cap(): %zu", len(chan), cap(chan));
 
-	chan = None;
-	if (chan == None)
-		print("chan equals None");
-	else
-		print("chan != None : FAIL");
+//	del(chan);
+	chan.clear();
+	print("operator!(): %s", (!chan) ? "OK" : "FAIL");
 
 	return 0;
 }

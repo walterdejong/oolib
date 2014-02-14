@@ -178,19 +178,10 @@ int main(void) {
 	print();
 	print();
 
-	a = None;
-	print("assignment to None: len(a): %zu   cap(a): %zu", len(a), cap(a));
+	del(a);
+	print("del(a): len(a): %zu   cap(a): %zu", len(a), cap(a));
 	print("a.empty(): %s", a.empty() ? "OK" : "FAIL");
-
-	if (!a)
-		print("operator!(): OK");
-	else
-		print("FAIL: operator!();");
-
-	if (a == None)
-		print("compare to None: OK");
-	else
-		print("FAIL: compare to None");
+	print("operator!(): %s", (!a) ? "OK" : "FAIL");
 
 	return 0;
 }

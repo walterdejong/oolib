@@ -70,12 +70,10 @@ int main(void) {
 	print("ending, mutex is %v", &mutex);
 	join();
 
-	mutex = None;
-	if (!mutex) {
-		print("mutex is None; %v", &mutex);
-	} else {
-		print("FAIL: mutex is not None; %v", &mutex);
-	}
+//	del(mutex);
+	mutex.clear();
+	print("operator!(): %s", (!mutex) ? "OK" : "FAIL");
+
 	return 0;
 }
 

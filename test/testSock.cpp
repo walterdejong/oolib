@@ -39,7 +39,7 @@ Sock main_conn;
 
 void serve_client(void) {
 	if (!main_conn) {
-		print("[%u] problem, main_conn is None!", gettid());
+		print("[%u] problem, main_conn is closed!", gettid());
 		return;
 	}
 	
@@ -65,8 +65,8 @@ void server_func(void) {
 	set_signal(SIGCHLD, sigchild_handler);
 
 	Sock server = listen("1234");
-	if (server == None) {
-		print("error: listen() returned None");
+	if (!server) {
+		print("error: listen() returned closed socket");
 		return;
 	}
 	print("server accepting connections at port 1234");
@@ -96,7 +96,7 @@ int main(void) {
 
 	Sock sock = connect("www.google.com", "www");
 
-	if (sock == None) {
+	if (!sock) {
 		print("failed!");
 		return 127;
 	}
@@ -120,22 +120,21 @@ int main(void) {
 	String line;
 	while(true) {
 		line = sock.readline();
-		if (line == None)
+		if (!line) {
 			break;
-
+		}
 		line = line.strip();
-		if (!line)
+		if (!line) {
 			continue;
-
+		}
 		print("> %v", &line);
 	}
 
 // socket also closes automatically when it destructs
 //	sock.close();
 
-	sock = None;
-	if (sock != None)
-		print("compare to None: FAIL");
+	del(sock);
+	print("operator!(): %s", (!sock) ? "OK" : "FAIL");
 
 	// now test server functions
 	print();

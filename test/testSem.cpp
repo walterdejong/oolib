@@ -110,12 +110,10 @@ int main(void) {
 	print("all done");
 
 	print("sem: %v", &mutex);
-	mutex = None;
+	del(mutex);
 	print("sem: %v", &mutex);
-	if (!mutex)
-		print("sem is None");
-	else
-		print("FAIL: your skill is not enough");
+	print("operator!(): %s", (!mutex) ? "OK" : "FAIL");
+
 	return 0;
 }
 

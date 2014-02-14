@@ -196,7 +196,7 @@ bool Sock::connect(const char *ipaddr, const char *serv) {
 		throw ReferenceError();
 	}
 
-	if (!this->isNone()) {
+	if (!this->is_closed()) {
 		throw IOError("socket is already in use");
 	}
 
@@ -241,7 +241,7 @@ bool Sock::connect(const char *ipaddr, const char *serv) {
 }
 
 Sock Sock::accept(void) const {
-	if (this->isNone()) {
+	if (this->is_closed()) {
 		throw IOError("accept() called on a non-listening socket");
 	}
 
@@ -258,19 +258,18 @@ Sock Sock::accept(void) const {
 			if (errno == EINTR) {
 				continue;
 			}
-			sock = None;
-			return sock;
+			return Sock();
 		}
 		break;
 	}
 	if (!sock.f_.open(sockfd, "w+")) {
-		sock = None;
+		return Sock();
 	}
 	return sock;
 }
 
 String Sock::remoteaddr(void) const {
-	if (this->isNone()) {
+	if (this->is_closed()) {
 		throw IOError("can not get remote address of an unconnected socket");
 	}
 
@@ -294,7 +293,7 @@ Sock listen(const char *serv) {
 	Sock sock;
 
 	if (!sock.listen(serv)) {
-		sock = None;
+		return Sock();
 	}
 	return sock;
 }
@@ -303,7 +302,7 @@ Sock listen6(const char *serv) {
 	Sock sock;
 
 	if (!sock.listen6(serv)) {
-		sock = None;
+		return Sock();
 	}
 	return sock;
 }
@@ -312,7 +311,7 @@ Sock connect(const char *ipaddr, const char *serv) {
 	Sock sock;
 
 	if (!sock.connect(ipaddr, serv)) {
-		sock = None;
+		return Sock();
 	}
 	return sock;
 }

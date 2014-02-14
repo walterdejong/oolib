@@ -31,7 +31,6 @@
 #define OOARRAY_H_WJ112
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Sequence.h"
 #include "oo/Error.h"
 #include "oo/compare.h"
@@ -67,8 +66,6 @@ public:
 		swap(*this, a);
 	}
 
-	Array(const NoneObject& none) : Base(), Sequence<T>(), v_(std::vector<T>(0)) { }
-
 	Array(const List<T>&);	// convert List to Array
 
 	Array(std::initializer_list<T> a) : Array() {
@@ -89,16 +86,7 @@ public:
 		std::swap(a.v_, b.v_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const;
-
-	bool isNone(void) const { return (v_.size() == 0); }
-	void setNone(void) { clear(); }
 
 	// the swap trick frees all memory in the vector
 	static void force_free(std::vector<T>& v) {
@@ -113,13 +101,7 @@ public:
 	}
 
 	size_t len(void) const { return v_.size(); }
-
-	size_t cap(void) const {
-		if (isNone()) {
-			return 0;
-		}
-		return v_.capacity();
-	}
+	size_t cap(void) const { return v_.capacity(); }
 
 	void grow(size_t n) {
 		// round up to next multiple of 4
@@ -128,6 +110,8 @@ public:
 		n = n + 4 - (n % 4);
 		v_.reserve(n);
 	}
+
+	bool operator!(void) const { return this->empty(); }
 
 	T& operator[](int idx);
 	const T& operator[](int idx) const;

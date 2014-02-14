@@ -80,17 +80,8 @@ public:
 		}
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const { return "<Argv>"; }
 	std::string str(void) const;
-
-	bool isNone(void) const { return (s_argc == 0); }
-	void setNone(void) { clear(); }
 
 	void clear(void) {
 		s_argc = 0;
@@ -106,12 +97,20 @@ public:
 
 	size_t len(void) const { return (size_t)s_argc; }
 
+	bool operator!(void) const { return (s_argc == 0); }
+
 	void init(int, char **);
 
 	const char *operator[](int) const;
 
 	const char *prognam(void) const { return s_prognam; }
-	const char *command(void) const { if (s_argv != nullptr) return s_argv[0]; return nullptr; }
+
+	const char *command(void) const {
+		if (s_argv != nullptr) {
+			return s_argv[0];
+		}
+		return nullptr;
+	}
 
 	// this getopt() allows option arguments to occur after non-option arguments
 	// (unlike UNIX getopt())
@@ -127,7 +126,10 @@ public:
 	void optreset(void);
 
 private:
-	ArgvObject() : Base(), Sizeable(), s_argc(0), s_argv(nullptr), s_prognam(nullptr) { optreset(); s_opt.opterr = true; }
+	ArgvObject() : Base(), Sizeable(), s_argc(0), s_argv(nullptr), s_prognam(nullptr) {
+		optreset();
+		s_opt.opterr = true;
+	}
 
 	int s_argc;
 	char **s_argv;		// not const, but I promise it is treated as const

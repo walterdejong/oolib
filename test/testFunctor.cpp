@@ -47,10 +47,10 @@ int main(void) {
 	go(f);
 	join();
 
-	f = None;
-	if (f != None) {
-		print("f: %v != None  FAIL", &f);
-	}
+	del(f);
+	print("f: %v", &f);
+	print("operator!(): %s", (!f) ? "OK" : "FAIL");
+
 	return 0;
 }
 

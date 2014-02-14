@@ -31,7 +31,6 @@
 #define OOCHAN_H_WJ112
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Sizeable.h"
 #include "oo/Error.h"
 
@@ -54,10 +53,10 @@ namespace oo {
 	Mind that only the read() and write() methods do proper locking
 
 	You can't close a channel, as there is never a need to, but you can
-	assign it to None to free up the buffer. This does not do locking,
+	call clear() on it to free up the buffer. This does not do locking,
 	you have to make sure yourself that no other thread is using the
 	channel at that moment. You can't use a channel anymore after it
-	has become None (the program will segv). However you can grow() it
+	has been cleared (the program will segv). However you can grow() it
 	and start using it again.
 	Anyway, a channel is not like a	file or socket that you should open
 	and close all the time.
@@ -74,23 +73,9 @@ public:
 		}
 	}
 
-	Chan(const NoneObject&) : Base(), Sizeable(),
-		mx_(), not_empty_(), not_full_(), buffer() { }
-
-	virtual ~Chan() {
-		clear();
-	}
-
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
+	virtual ~Chan() { clear(); }
 
 	std::string repr(void) const { return "<Chan>"; }
-
-	bool isNone(void) const { return buffer.capacity() == 0; }
-	void setNone(void) { clear(); }
 
 	// the swap trick frees all memory in the vector
 	static void force_free(std::vector<T>& v) {
@@ -107,6 +92,8 @@ public:
 
 	size_t len(void) const { return buffer.size(); }
 	size_t cap(void) const { return buffer.capacity(); }
+
+	bool operator!(void) const { return empty(); }
 
 	void grow(size_t n) {
 		buffer.reserve(n);
@@ -135,10 +122,6 @@ private:
 
 template <typename T>
 void Chan<T>::write(const T& t) {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	std::unique_lock<std::mutex> lk(mx_);
 
 	// wait until not full
@@ -161,10 +144,6 @@ void Chan<T>::write(const T& t) {
 
 template <typename T>
 void Chan<T>::read(T& t) {
-	if (isNone()) {
-		throw ReferenceError();
-	}
-
 	std::unique_lock<std::mutex> lk(mx_);
 
 	// wait until not empty

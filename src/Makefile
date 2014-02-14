@@ -54,7 +54,7 @@ INSTALL=install
 
 CXXFILES=$(wildcard *.cpp)
 HEADERS=$(wildcard $(INCLUDE)/oo/*.h)
-OBJS=None.o Error.o print.o String.o File.o Mutex.o Sem.o go.o dir.o Argv.o \
+OBJS=Error.o print.o String.o File.o Mutex.o Sem.o go.o dir.o Argv.o \
 	Sock.o Observer.o signal.o daemon.o oolib.o
 
 TARGETS=liboo.so liboo.a

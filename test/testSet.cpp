@@ -70,9 +70,11 @@ int main(void) {
 		print("b.pop(): %d", b.pop());
 	}
 
-	a = None;
-	print("assignment to None: %v len: %zu", &a, len(a));
+	del(a);
+	print("del(a): %v len: %zu", &a, len(a));
 	print("a.empty(): %s", a.empty() ? "OK" : "FAIL");
+	print("operator!(): %s", (!a) ? "OK" : "FAIL");
+
 	return 0;
 }
 

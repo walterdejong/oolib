@@ -91,19 +91,10 @@ int main(void) {
 		print(" %v: %d", &kv.first, kv.second);
 	print();
 
-	d = None;
-	print("assignment to None: len(%zu)", len(d));
+	del(d);
+	print("del(d): len(d): %zu", len(d));
 	print("d.empty(): %s", d.empty() ? "OK" : "FAIL");
-
-	if (!d)
-		print("operator!(): OK");
-	else
-		print("FAIL: operator!();");
-
-	if (d == None)
-		print("compare to None: OK");
-	else
-		print("FAIL: compare to None");
+	print("operator!(): %s", (!d) ? "OK" : "FAIL");
 
 	return 0;
 }

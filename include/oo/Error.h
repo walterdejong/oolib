@@ -33,6 +33,7 @@
 #include "oo/Base.h"
 
 #include <ostream>
+#include <sstream>
 
 namespace oo {
 
@@ -55,7 +56,6 @@ class Error : public Base {
 public:
 	// how many constructors does it take?
 	Error() : Base(), errcode(0), errname("Error"), errmsg("unknown error") { }
-	Error(const NoneObject& none) : Base(), errcode(0), errname(""), errmsg("unknown error") { }
 
 	Error(int c, const char *n, const char *m) : Base(), errcode(c), errname(n), errmsg(m) { }
 	Error(int c, const std::string& n, const std::string& m) : Base(), errcode(c), errname(n), errmsg(m) { }
@@ -79,23 +79,23 @@ public:
 		std::swap(a.errmsg, b.errmsg);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
+	std::string repr(void) const {
+		std::stringstream ss;
+		ss << "<" << errname << ": " << errcode << ", \"" << errmsg << "\">";
+		return ss.str();
+	}
 
-	std::string repr(void) const;
-	std::string str(void) const;
-
-	bool isNone(void) const { return (errname.size() == 0); }
-	void setNone(void) { clear(); }
+	std::string str(void) const {
+		return errname + ": " + errmsg;
+	}
 
 	void clear(void) {
 		errcode = 0;
 		errname = "";
 		errmsg = "unknown error";
 	}
+
+	bool operator!(void) const { return (errcode == 0); }
 
 	int code(void) const { return errcode; }
 	std::string name(void) const { return errname; }
@@ -126,15 +126,10 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) {
 		x(const std::string& m) : Error(k##x, #x, m) { }		\
 		x(const x& e) : Error(e.errcode, #x, e.errmsg) { }		\
 		x(x&& e) : x() { swap(*this, e); }						\
-		x(const NoneObject& none) : Error(none) { }				\
 		x& operator=(x e) {										\
 			swap(*this, e);										\
 			return *this;										\
 		}														\
-		using Base::operator=;		\
-		using Base::operator!;		\
-		using Base::operator==;		\
-		using Base::operator!=;		\
 	}
 
 oo_define_error(MemoryError, "out of memory");

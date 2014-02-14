@@ -45,9 +45,9 @@ int main(void) {
 
 	while(true) {
 		s = f.readline();
-		if (!s)
+		if (!s) {
 			break;
-
+		}
 		printn("> %v", &s);
 	}
 	print("f: %v", &f);
@@ -64,9 +64,8 @@ int main(void) {
 	print("tempfile: %s", f.name().c_str());
 	f.write("dag!!\n");
 
-	f = None;	// this also closes the file
-	if (!f)
-		print("f equals None");
+	del(f);	// this also closes the file
+	print("operator!(): %s", (!f) ? "OK" : "FAIL");
 
 	print("test reading from a command pipe: /bin/ls -l");
 
@@ -77,16 +76,17 @@ int main(void) {
 
 	while(true) {
 		s = f.readline();
-		if (!s)
+		if (!s) {
 			break;
-
+		}
 //		fprint(Stderr, "%v", &s);
 		printn("%v", &s);
 	}
-	f = None;	// also closes the pipe
+
+	del(f);	// also closes the pipe
 //	print("f == %v", &f);
 
-	Stderr = None;	// close stderr
+	del(Stderr);	// close stderr
 	fprint(Stderr, "bye bye!!\n");	// no error when writing to closed stderr
 	return 0;
 }

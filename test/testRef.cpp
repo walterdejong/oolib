@@ -55,9 +55,8 @@ int main(void) {
 	test_t t = *r;
 	print("test_t: %d %d %q", t.a, t.b, &t.s);
 
-	r = None;
-	if (r == None)
-		print("r equals None");
+	del(r);
+	print("operator!(): %s", (!r) ? "OK" : "FAIL");
 
 	return 0;
 }

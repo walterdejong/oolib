@@ -31,7 +31,6 @@
 #define OOSET_H_WJ114
 
 #include "oo/Base.h"
-#include "oo/None.h"
 #include "oo/Sizeable.h"
 #include "oo/Error.h"
 #include "oo/String.h"
@@ -49,7 +48,6 @@ public:
 	typedef T value_type;
 
 	Set() : Base(), Sizeable(), s_(std::set<T>()) { }
-	Set(const NoneObject& none) : Base(), Sizeable(), s_(std::set<T>()) { }
 
 	Set(const Set& s) : Base(), Sizeable(), s_(std::set<T>(s.s_)) { }
 
@@ -74,16 +72,9 @@ public:
 		std::swap(a.s_, b.s_);
 	}
 
-	// these assign and compare to None
-	using Base::operator=;
-	using Base::operator!;
-	using Base::operator==;
-	using Base::operator!=;
-
 	std::string repr(void) const;
 
-	bool isNone(void) const { return (s_.size() == 0); }
-	void setNone(void) { clear(); }
+	bool operator!(void) const { return empty(); }
 
 	// the swap trick frees all memory in the set
 	static void force_free(std::set<T>& s) {
