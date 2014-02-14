@@ -35,6 +35,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <memory>
 #include <mutex>
 
 namespace oo {
@@ -49,11 +50,25 @@ typedef enum {
 
 class Mutex : public Base {
 public:
-	Mutex() : Base(), state(MutexUnlocked), m_() { }
+	Mutex() : Base(), state(MutexUnlocked), m_(std::shared_ptr<std::mutex>(new std::mutex)) { }
 
-	// Note: Mutex is non-copyable
+	Mutex(const Mutex& m) : Base(), state(m.state), m_(m.m_) { }
+
+	Mutex(Mutex&& m) : Mutex() {
+		swap(*this, m);
+	}
 
 	virtual ~Mutex() { unlock(); }
+
+	Mutex& operator=(Mutex m) {
+		swap(*this, m);
+		return *this;
+	}
+
+	static void swap(Mutex& a, Mutex& b) {
+		std::swap(a.state, b.state);
+		std::swap(a.m_, b.m_);
+	}
 
 	virtual std::string repr(void) const {
 		if (islocked()) {
@@ -74,7 +89,7 @@ public:
 
 private:
 	MutexState state;
-	std::mutex m_;
+	std::shared_ptr<std::mutex> m_;
 
 	friend std::ostream& operator<<(std::ostream&, const Mutex&);
 };

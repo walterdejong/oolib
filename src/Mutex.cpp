@@ -32,8 +32,11 @@
 namespace oo {
 
 void Mutex::lock(void) {
+	if (m_.get() == nullptr) {
+		throw ReferenceError();
+	}
 	try {
-		m_.lock();
+		m_->lock();
 	} catch(std::system_error) {
 		throw OSError("failed to lock Mutex");
 	}
@@ -41,20 +44,26 @@ void Mutex::lock(void) {
 }
 
 void Mutex::unlock(void) {
+	if (m_.get() == nullptr) {
+		throw ReferenceError();
+	}
 	if (state != MutexLocked) {
 		return;
 	}
 
 	state = MutexUnlocked;
 	try {
-		m_.unlock();
+		m_->unlock();
 	} catch(std::system_error) {
 		throw OSError("failed to unlock Mutex");
 	}
 }
 
 bool Mutex::trylock(void) {
-	if (m_.try_lock()) {
+	if (m_.get() == nullptr) {
+		throw ReferenceError();
+	}
+	if (m_->try_lock()) {
 		state = MutexLocked;
 	} else {
 		state = MutexUnlocked;

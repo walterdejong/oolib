@@ -50,7 +50,15 @@ void testfunc(void) {
 	mutex.unlock();
 }
 
+Mutex mutex_factory(void) {
+	Mutex mx;
+	print("mutex factory: returning a mutex");
+	return mx;
+}
+
 int main(void) {
+	mutex = mutex_factory();
+
 	for(int i = 0; i < 6; i++) {
 		go(testfunc);
 	}
@@ -70,8 +78,7 @@ int main(void) {
 	print("ending, mutex is %v", &mutex);
 	join();
 
-//	del(mutex);
-	mutex.clear();
+	del(mutex);
 	print("operator!(): %s", (!mutex) ? "OK" : "FAIL");
 
 	return 0;
