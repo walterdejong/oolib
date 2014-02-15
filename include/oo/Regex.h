@@ -83,6 +83,7 @@ public:
 	}
 
 	Array<String> search(const String&, int options=0);
+	Array<String> findall(const String&, int options=0);
 
 private:
 	class PcreDeleter {

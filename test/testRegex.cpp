@@ -68,6 +68,11 @@ int main(void) {
 	m = re.search(u8R"(交易金额：600元)");
 	print("re.search: %q", &m);
 	print();
+
+	m = re.findall("100 200 300 400 500 600 monkeys");
+	print("re.findall: %q", &m);
+	print();
+
 	return 0;
 }
 

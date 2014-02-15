@@ -130,6 +130,65 @@ Array<String> Regex::search(const String& s, int options) {
 	return arr;
 }
 
+Array<String> Regex::findall(const String& s, int options) {
+	/*
+		this func is the very same as search(), except that it loops
+		to find all matches in the subject string
+	*/
+	this->precompile();
+
+	Array<String> arr;
+
+	int capcount = 0;
+	if (pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_CAPTURECOUNT, &capcount) < 0) {
+		throw ValueError("invalid regex");
+	}
+	capcount++;
+	int ovector[capcount * 3];
+
+	const char *subject = s.c_str();
+	if (subject == nullptr) {
+		throw ReferenceError();
+	}
+
+	int subject_len = std::strlen(subject);
+	int offset = 0;
+
+	// execute the regex match
+
+	while(offset < subject_len) {
+		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, options, ovector, capcount * 3);
+		if (matches == PCRE_ERROR_NOMATCH) {
+			return arr;
+		}
+		if (matches <= 0) {
+			throw ValueError("Regex::findall(): error in pcre_exec()");
+		}
+
+		// put the results in array
+
+		const char **results = nullptr;
+		if (pcre_get_substring_list(subject, ovector, matches, &results) < 0) {
+			throw ValueError("Regex::findall() failed to extract results");
+		}
+
+		arr.grow(arr.len() + matches);
+
+		int n = (offset == 0) ? 0 : 1;
+		for(const char *p = results[n]; p != nullptr; n++, p = results[n]) {
+			if (p == nullptr) {
+				// PCRE results should never be nullptr
+				throw ReferenceError();
+			}
+			arr.append(String(p));
+		}
+		pcre_free_substring_list(results);
+
+		offset = ovector[1];
+	}
+	return arr;
+}
+
 }	// namespace oo
 
 // EOB
