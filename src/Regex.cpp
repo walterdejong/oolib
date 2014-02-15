@@ -81,7 +81,7 @@ void Regex::compile(void) {
 	study_ = std::shared_ptr<pcre_extra>(extra, PcreStudyDeleter());
 }
 
-Array<String> Regex::match(const String& s) {
+Array<String> Regex::search(const String& s, int options) {
 	this->precompile();
 
 	Array<String> arr;
@@ -100,19 +100,19 @@ Array<String> Regex::match(const String& s) {
 
 	// execute the regex match
 
-	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, PCRE_ANCHORED, ovector, capcount * 3);
+	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, options, ovector, capcount * 3);
 	if (matches == PCRE_ERROR_NOMATCH) {
 		return arr;
 	}
 	if (matches <= 0) {
-		throw ValueError("Regex::match(): error in pcre_exec()");
+		throw ValueError("Regex::search(): error in pcre_exec()");
 	}
 
 	// put the results in array
 
 	const char **results = nullptr;
 	if (pcre_get_substring_list(subject, ovector, matches, &results) < 0) {
-		throw ValueError("Regex::match() failed to extract results");
+		throw ValueError("Regex::search() failed to extract results");
 	}
 
 	arr.grow(matches);

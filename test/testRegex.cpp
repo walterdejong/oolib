@@ -35,20 +35,20 @@ int main(void) {
 	Regex re(R"((\d+))");
 	print("re: %v", &re);
 	Array<String> m = re.match("123");
-	print("re.match: %v", &m);
+	print("re.match: %q", &m);
 	print();
 
-	re = Regex(R"(the (\w+\s\w+) jumped over the (\w+\s\w+))");
+	re = R"(the (\w+\s\w+) jumped over the (\w+\s\w+))";
 	print("re: %v", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
-	print("re.match: %v", &m);
+	print("re.match: %q", &m);
 
 	// \w+ does only matches ASCII chars
 //	m = re.match(u8"the quick 狐 jumped over the lazy 犬");
-//	print("re.match: %v", &m);
+//	print("re.match: %q", &m);
 	print();
 
-	re = Regex(R"(the \w+\s\w+ jumped over the \w+\s\w+)");
+	re = R"(the \w+\s\w+ jumped over the \w+\s\w+)";
 	print("re: %v", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
 	print("re.match: %s", (!m) ? "FAIL" : "OK");
@@ -57,12 +57,17 @@ int main(void) {
 	print();
 
 	// match UTF-8 strings
-	re = Regex(u8R"(交易金额：(\d+)元)");
+	re = u8R"(交易金额：(\d+)元)";
 	print("re: %v", &re);
 	m = re.match(u8R"(交易金额：600元)");
-	print("re.match: %v", &m);
+	print("re.match: %q", &m);
 	print();
 
+	re = R"((\d+))";
+	print("re: %v", &re);
+	m = re.search(u8R"(交易金额：600元)");
+	print("re.search: %q", &m);
+	print();
 	return 0;
 }
 

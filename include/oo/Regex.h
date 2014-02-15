@@ -60,6 +60,12 @@ public:
 		return *this;
 	}
 
+	Regex& operator=(const String& s) {
+		Regex r(s);
+		swap(*this, r);
+		return *this;
+	}
+
 	static void swap(Regex& a, Regex& b) {
 		std::swap(a.pattern_, b.pattern_);
 		std::swap(a.re_, b.re_);
@@ -72,7 +78,11 @@ public:
 
 	void compile(void);		// 'studies' the regex
 
-	Array<String> match(const String&);
+	Array<String> match(const String& s, int options=0) {
+		return this->search(s, options | PCRE_ANCHORED);
+	}
+
+	Array<String> search(const String&, int options=0);
 
 private:
 	class PcreDeleter {
