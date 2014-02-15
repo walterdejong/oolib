@@ -32,11 +32,36 @@
 using namespace oo;
 
 int main(void) {
-	Regex re(R"(\d+)");
+	Regex re(R"((\d+))");
 	print("re: %v", &re);
+	Array<String> m = re.match("123");
+	print("re.match: %v", &m);
+	print();
 
-	Array<String> a = re.match("123");
-	print("re.match: %v", &a);
+	re = Regex(R"(the (\w+\s\w+) jumped over the (\w+\s\w+))");
+	print("re: %v", &re);
+	m = re.match("the yellow dog jumped over the hairy cat");
+	print("re.match: %v", &m);
+
+	// \w+ does only matches ASCII chars
+//	m = re.match(u8"the quick 狐 jumped over the lazy 犬");
+//	print("re.match: %v", &m);
+	print();
+
+	re = Regex(R"(the \w+\s\w+ jumped over the \w+\s\w+)");
+	print("re: %v", &re);
+	m = re.match("the yellow dog jumped over the hairy cat");
+	print("re.match: %s", (!m) ? "FAIL" : "OK");
+	m = re.match("the quick brown fox jumped over the lazy dog");
+	print("re.match test2: %s", (!m) ? "OK" : "FAIL");
+	print();
+
+	// match UTF-8 strings
+	re = Regex(u8R"(交易金额：(\d+)元)");
+	print("re: %v", &re);
+	m = re.match(u8R"(交易金额：600元)");
+	print("re.match: %v", &m);
+	print();
 
 	return 0;
 }
