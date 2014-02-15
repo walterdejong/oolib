@@ -74,8 +74,15 @@ int main(void) {
 	print();
 
 	re = R"(the (?<which>\w+\s\w+) jumped over the (?<what>\w+\s\w+))";
+	re.compile();
 	print("re: %v", &re);
 	Dict<String> d = re.matchbyname("the yellow dog jumped over the hairy cat");
+	print("re.matchbyname: %q", &d);
+	d = re.matchbyname("the brown fox jumped over the grey hare");
+	print("re.matchbyname: %q", &d);
+	d = re.matchbyname("the grey hare jumped over the sleepy tortoise");
+	print("re.matchbyname: %q", &d);
+	d = re.matchbyname("the ninja turtle jumped over the angry pig");
 	print("re.matchbyname: %q", &d);
 	print();
 
