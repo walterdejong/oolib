@@ -32,6 +32,7 @@
 
 #include "oo/Base.h"
 #include "oo/String.h"
+#include "oo/Dict.h"
 #include "oo/Error.h"
 
 #include <algorithm>
@@ -79,11 +80,17 @@ public:
 	void compile(void);		// 'studies' the regex
 
 	Array<String> match(const String& s, int options=0) {
-		return this->search(s, options | PCRE_ANCHORED);
+		return search(s, options|PCRE_ANCHORED);
 	}
 
 	Array<String> search(const String&, int options=0);
 	Array<String> findall(const String&, int options=0);
+
+	Dict<String> matchbyname(const String& s, int options=0) {
+		return searchbyname(s, options|PCRE_ANCHORED);
+	}
+
+	Dict<String> searchbyname(const String&, int options=0);
 
 private:
 	class PcreDeleter {

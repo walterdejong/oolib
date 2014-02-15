@@ -40,7 +40,7 @@ CXX_STANDARD=-std=c++11
 CXX_OPTIMIZE=-gdwarf-2
 #CXX_OPTIMIZE=-O3
 
-INCLUDE=../include
+INCLUDE=../include -I/usr/local/include
 
 CXXFLAGS=-Wall $(CXX_STANDARD) $(CXX_OPTIMIZE) -fPIC -I$(INCLUDE)
 

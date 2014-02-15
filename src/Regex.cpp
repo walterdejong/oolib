@@ -57,14 +57,14 @@ void Regex::precompile(void) {
 	pcre *compiled = pcre_compile(pattern_.c_str(), PCRE_UTF8, &errmsg, &erroffset, nullptr);
 
 	if (compiled == nullptr) {
-		throw ValueError(errmsg);
+		throw RuntimeError(errmsg);
 	}
 
 	re_ = std::shared_ptr<pcre>(compiled, PcreDeleter());
 }
 
 void Regex::compile(void) {
-	this->precompile();
+	precompile();
 
 	if (study_.get() != nullptr) {
 		// already studied, and cached
@@ -75,14 +75,14 @@ void Regex::compile(void) {
 
 	pcre_extra *extra = pcre_study(re_.get(), 0, &errmsg);
 	if (extra == nullptr) {
-		throw ValueError(errmsg);
+		throw RuntimeError(errmsg);
 	}
 
 	study_ = std::shared_ptr<pcre_extra>(extra, PcreStudyDeleter());
 }
 
 Array<String> Regex::search(const String& s, int options) {
-	this->precompile();
+	precompile();
 
 	Array<String> arr;
 
@@ -105,14 +105,14 @@ Array<String> Regex::search(const String& s, int options) {
 		return arr;
 	}
 	if (matches <= 0) {
-		throw ValueError("Regex::search(): error in pcre_exec()");
+		throw RuntimeError("error while executing the regex");
 	}
 
 	// put the results in array
 
 	const char **results = nullptr;
 	if (pcre_get_substring_list(subject, ovector, matches, &results) < 0) {
-		throw ValueError("Regex::search() failed to extract results");
+		throw RuntimeError("error extracting regex results");
 	}
 
 	arr.grow(matches);
@@ -135,7 +135,7 @@ Array<String> Regex::findall(const String& s, int options) {
 		this func is the very same as search(), except that it loops
 		to find all matches in the subject string
 	*/
-	this->precompile();
+	precompile();
 
 	Array<String> arr;
 
@@ -162,14 +162,14 @@ Array<String> Regex::findall(const String& s, int options) {
 			return arr;
 		}
 		if (matches <= 0) {
-			throw ValueError("Regex::findall(): error in pcre_exec()");
+			throw RuntimeError("error while executing the regex");
 		}
 
 		// put the results in array
 
 		const char **results = nullptr;
 		if (pcre_get_substring_list(subject, ovector, matches, &results) < 0) {
-			throw ValueError("Regex::findall() failed to extract results");
+			throw RuntimeError("error extracting regex results");
 		}
 
 		arr.grow(arr.len() + matches);
@@ -187,6 +187,85 @@ Array<String> Regex::findall(const String& s, int options) {
 		offset = ovector[1];
 	}
 	return arr;
+}
+
+Dict<String> Regex::searchbyname(const String& s, int options) {
+	precompile();
+
+	Dict<String> d;
+
+	int capcount = 0;
+	if (pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_CAPTURECOUNT, &capcount) < 0) {
+		throw ValueError("invalid regex");
+	}
+	capcount++;
+	int ovector[capcount * 3];
+
+	const char *subject = s.c_str();
+	if (subject == nullptr) {
+		throw ReferenceError();
+	}
+
+	// execute the regex match
+
+	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, options, ovector, capcount * 3);
+	if (matches == PCRE_ERROR_NOMATCH) {
+		return d;
+	}
+	if (matches <= 0) {
+		throw RuntimeError("error while executing the regex");
+	}
+
+	// put biggest match in d["$_"]
+	const char *result = nullptr;
+	if (pcre_get_substring(subject, ovector, matches, 0, &result) < 0) {
+		throw RuntimeError("error extracting regex results");
+	}
+	d["$_"] = result;
+	pcre_free_substring(result);
+	result = nullptr;
+
+	// let's go put all results in dict, by name
+
+	int namecount = 0;
+	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMECOUNT, &namecount);
+	if (namecount <= 0) {
+		// there are no names; return d as it is now
+		return d;
+	}
+
+	int namesize = 0;
+	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMEENTRYSIZE, &namesize);
+	if (namesize <= 0) {
+		throw RuntimeError("illegal value for regex name size");
+	}
+
+	char *nametable = nullptr;
+	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMETABLE, &nametable);
+	if (nametable == nullptr) {
+		throw RuntimeError("error getting regex name table");
+	}
+
+	// put the results in dict
+	// walk the name table, get the result number, put result in dict
+
+	for(int i = 0; i < namecount; i++) {
+		char *name = nametable + 2;
+		int num = pcre_get_stringnumber(re_.get(), name);
+		if (num < 0) {
+			throw RuntimeError("error getting regex result number by name");
+		}
+
+		if (pcre_get_substring(subject, ovector, matches, num, &result) < 0) {
+			throw RuntimeError("error extracting regex results");
+		}
+		d[name] = result;
+		pcre_free_substring(result);
+		result = nullptr;
+
+		nametable += namesize;
+	}
+	return d;
 }
 
 }	// namespace oo

@@ -73,6 +73,12 @@ int main(void) {
 	print("re.findall: %q", &m);
 	print();
 
+	re = R"(the (?<which>\w+\s\w+) jumped over the (?<what>\w+\s\w+))";
+	print("re: %v", &re);
+	Dict<String> d = re.matchbyname("the yellow dog jumped over the hairy cat");
+	print("re.matchbyname: %q", &d);
+	print();
+
 	return 0;
 }
 
