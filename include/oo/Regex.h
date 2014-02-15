@@ -1,5 +1,5 @@
 /*
-	oolib	WJ112
+	ooRegex.h	WJ114
 */
 /*
  * Copyright (c) 2014, Walter de Jong
@@ -27,46 +27,81 @@
  *
  */
 
-#ifndef OOLIB_WJ112
-#define OOLIB_WJ112
+#ifndef OOREGEX_H_WJ114
+#define OOREGEX_H_WJ114
 
-// include *.h
-
-#include "oo/Argv.h"
-#include "oo/Array.h"
 #include "oo/Base.h"
-#include "oo/Chan.h"
-#include "oo/Dict.h"
-#include "oo/Error.h"
-#include "oo/File.h"
-#include "oo/Functor.h"
-#include "oo/List.h"
-#include "oo/Mutex.h"
-#include "oo/Observer.h"
-#include "oo/Ref.h"
-#include "oo/Sem.h"
-#include "oo/Sequence.h"
-#include "oo/Set.h"
-#include "oo/Sizeable.h"
-#include "oo/Sock.h"
 #include "oo/String.h"
-#include "oo/Regex.h"
-#include "oo/daemon.h"
-#include "oo/defer.h"
-#include "oo/dir.h"
-#include "oo/go.h"
-#include "oo/print.h"
-#include "oo/signal.h"
-#include "oo/types.h"
+#include "oo/Error.h"
+
+#include <algorithm>
+#include <memory>
+
+#include <pcre.h>
 
 namespace oo {
 
-extern const unsigned int version_number;
-extern const char *version_string;
-extern const char *copyright;
+class Regex : public Base {
+public:
+	Regex() : Base(), pattern_(), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
 
-}	// namespace
+	Regex(const String& s) : Base(), pattern_(s), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
 
-#endif	// OOLIB_WJ112
+	Regex(const Regex& r) : Base(), pattern_(r.pattern_), re_(r.re_), study_(r.study_) { }
+
+	Regex(Regex&& r) : Regex() {
+		swap(*this, r);
+	}
+
+//	virtual ~Regex() { }
+
+	Regex& operator=(Regex copy) {
+		swap(*this, copy);
+		return *this;
+	}
+
+	static void swap(Regex& a, Regex& b) {
+		std::swap(a.pattern_, b.pattern_);
+		std::swap(a.re_, b.re_);
+		std::swap(a.study_, b.study_);
+	}
+
+	std::string repr(void) const;
+
+	bool operator!(void) const { return pattern_.empty(); }
+
+	void compile(void);		// 'studies' the regex
+
+	Array<String> match(const String&);
+
+private:
+	class PcreDeleter {
+	public:
+		void operator()(pcre *p) {
+			if (p != nullptr) {
+				pcre_free(p);
+			}
+		}
+	};
+
+	class PcreStudyDeleter {
+	public:
+		void operator()(pcre_extra *p) {
+			if (p != nullptr) {
+				pcre_free_study(p);
+			}
+		}
+	};
+
+	void precompile(void);
+
+	String pattern_;
+	std::shared_ptr<pcre> re_;			// compiled pattern
+	std::shared_ptr<pcre_extra> study_;	// extra study data
+};
+
+};
+
+#endif	// OOREGEX_H_WJ114
 
 // EOB

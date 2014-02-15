@@ -1,5 +1,5 @@
 /*
-	oolib	WJ112
+	testRegex.cpp	WJ114
 */
 /*
  * Copyright (c) 2014, Walter de Jong
@@ -27,46 +27,18 @@
  *
  */
 
-#ifndef OOLIB_WJ112
-#define OOLIB_WJ112
+#include "oolib"
 
-// include *.h
+using namespace oo;
 
-#include "oo/Argv.h"
-#include "oo/Array.h"
-#include "oo/Base.h"
-#include "oo/Chan.h"
-#include "oo/Dict.h"
-#include "oo/Error.h"
-#include "oo/File.h"
-#include "oo/Functor.h"
-#include "oo/List.h"
-#include "oo/Mutex.h"
-#include "oo/Observer.h"
-#include "oo/Ref.h"
-#include "oo/Sem.h"
-#include "oo/Sequence.h"
-#include "oo/Set.h"
-#include "oo/Sizeable.h"
-#include "oo/Sock.h"
-#include "oo/String.h"
-#include "oo/Regex.h"
-#include "oo/daemon.h"
-#include "oo/defer.h"
-#include "oo/dir.h"
-#include "oo/go.h"
-#include "oo/print.h"
-#include "oo/signal.h"
-#include "oo/types.h"
+int main(void) {
+	Regex re(R"(\d+)");
+	print("re: %v", &re);
 
-namespace oo {
+	Array<String> a = re.match("123");
+	print("re.match: %v", &a);
 
-extern const unsigned int version_number;
-extern const char *version_string;
-extern const char *copyright;
-
-}	// namespace
-
-#endif	// OOLIB_WJ112
+	return 0;
+}
 
 // EOB

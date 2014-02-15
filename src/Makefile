@@ -44,8 +44,8 @@ INCLUDE=../include
 
 CXXFLAGS=-Wall $(CXX_STANDARD) $(CXX_OPTIMIZE) -fPIC -I$(INCLUDE)
 
-LFLAGS=
-LIBS=
+LFLAGS=-gdwarf-2 -shared -L/usr/local/lib
+LIBS=-lpcre
 AR=ar
 INSTALL=install
 
@@ -55,7 +55,7 @@ INSTALL=install
 CXXFILES=$(wildcard *.cpp)
 HEADERS=$(wildcard $(INCLUDE)/oo/*.h)
 OBJS=Error.o print.o String.o File.o Mutex.o Sem.o go.o dir.o Argv.o \
-	Sock.o Observer.o signal.o daemon.o oolib.o
+	Sock.o Observer.o Regex.o signal.o daemon.o oolib.o
 
 TARGETS=liboo.so liboo.a
 
@@ -66,7 +66,7 @@ all: .depend $(TARGETS)
 include .depend
 
 liboo.so: $(OBJS)
-	$(CXX) -gdwarf-2 -shared -o liboo.so $(OBJS)
+	$(CXX) $(LFLAGS) -o liboo.so $(OBJS) $(LIBS)
 
 liboo.a: $(OBJS)
 	$(AR) rcs liboo.a $(OBJS)

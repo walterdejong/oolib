@@ -58,7 +58,7 @@ CXXFILES=$(wildcard *.cpp)
 TARGETS=testError testString testArray testList testDict testPrint \
 	testFile testGo testDefer testMutex testChan testCond testSem \
 	testRef testDir testArgv testSock testDaemon testObserver testSet \
-	testFunctor
+	testFunctor testRegex
 
 all: .depend $(TARGETS)
 
@@ -126,6 +126,9 @@ testDefer: testDefer.o
 
 testFunctor: testFunctor.o
 	$(CXX) $(LFLAGS) testFunctor.o -o testFunctor $(LIBS)
+
+testRegex: testRegex.o
+	$(CXX) $(LFLAGS) testRegex.o -o testRegex $(LIBS)
 
 dep .depend:
 	$(CXX) $(CXX_STANDARD) -I$(INCLUDE) -M *.cpp >.depend
