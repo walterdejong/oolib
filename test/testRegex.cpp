@@ -85,6 +85,12 @@ int main(void) {
 	print("re.matchbyname: %q", &d);
 	print();
 
+/*
+	// force an error
+	d = re.matchbyname("the ninja turtle jumped over the angry pig", 18762);
+	print("re.matchbyname: %q", &d);
+	print();
+*/
 	return 0;
 }
 

@@ -99,6 +99,9 @@ public:
 
 	Dict<String> searchbyname(const String&, int options=0);
 
+	static const char *errmsg[];
+	static const char *strerror(int);
+
 private:
 	class PcreDeleter {
 	public:

@@ -33,6 +33,61 @@
 
 namespace oo {
 
+const char *Regex::errmsg[] = {
+	"no error",
+	"no match",
+	"null pointer reference",
+	"bad or unknown option bit set",
+	"bad magic number in compiled regex",
+	"unknown opcode in compiled regex",
+	"unknown node in compiled regex",
+	"out of memory",
+	"no such substring",
+	"backtracking limit exceeded",
+	"callout error",
+	"invalid UTF-8 string encountered",
+	"invalid UTF-16 string encountered",
+	"invalid UTF-32 string encountered",
+	"invalid UTF-8 start offset encountered",
+	"invalid UTF-16 start offset encountered",
+	"partial match",
+	"bad partial match",
+	"unexpected internal error",
+	"illegal value for ovector size",
+	"DFA UITEM",
+	"DFA UCOND",
+	"DFA UMLIMIT",
+	"DFA WSSIZE",
+	"DFA RECURSE",
+	"recursion limit exceeded",
+	"NULLWSLIMIT",
+	"invalid combination of PCRE_NEWLINE_xxx options",
+	"invalid value for offset parameter",
+	"truncated UTF-8 string encountered",
+	"truncated UTF-16 string encountered",
+	"recursion loop detected",
+	"JIT stacklimit exceeded",
+	"bad mode: mixup of 8/16/32 bit code",
+	"bad endianness",
+	"DFA BADRESTART",
+	"JIT: invalid option",
+	"invalid value for length parameter",
+	"requested field is not set",
+};
+
+const char *Regex::strerror(int errnum) {
+	if (errnum < 0) {
+		errnum = -errnum;
+	}
+
+	static char errbuf[128];
+	std::strcpy(errbuf, "regex error: ");
+
+	int max_err = sizeof(Regex::errmsg)/sizeof(char*);
+	std::strcat(errbuf, (errnum >= max_err) ? "unknown error" : Regex::errmsg[errnum]);
+	return errbuf;
+}
+
 std::string Regex::repr(void) const {
 	if (pattern_.empty()) {
 		return "<Regex>";
@@ -59,7 +114,14 @@ void Regex::precompile(int options) {
 
 	pcre *compiled = pcre_compile(pattern_.c_str(), options, &errmsg, &erroffset, nullptr);
 	if (compiled == nullptr) {
-		throw RuntimeError(errmsg);
+		if (errmsg == nullptr) {
+			throw ReferenceError();
+		}
+
+		char errbuf[std::strlen(errmsg) + 16];
+		std::strcpy(errbuf, "regex error: ");
+		std::strcat(errbuf, errmsg);
+		throw RuntimeError(errbuf);
 	}
 
 	re_ = std::shared_ptr<pcre>(compiled, PcreDeleter());
@@ -78,7 +140,14 @@ void Regex::compile(int options) {
 
 	pcre_extra *extra = pcre_study(re_.get(), 0, &errmsg);
 	if (extra == nullptr) {
-		throw RuntimeError(errmsg);
+		if (errmsg == nullptr) {
+			throw ReferenceError();
+		}
+
+		char errbuf[std::strlen(errmsg) + 16];
+		std::strcpy(errbuf, "regex error: ");
+		std::strcat(errbuf, errmsg);
+		throw RuntimeError(errbuf);
 	}
 
 	study_ = std::shared_ptr<pcre_extra>(extra, PcreStudyDeleter());
@@ -108,7 +177,7 @@ Array<String> Regex::search(const String& s, int options) {
 		return arr;
 	}
 	if (matches <= 0) {
-		throw RuntimeError("error while executing the regex");
+		throw RuntimeError(Regex::strerror(matches));
 	}
 
 	// put the results in array
@@ -165,7 +234,7 @@ Array<String> Regex::findall(const String& s, int options) {
 			return arr;
 		}
 		if (matches <= 0) {
-			throw RuntimeError("error while executing the regex");
+			throw RuntimeError(Regex::strerror(matches));
 		}
 
 		// put the results in array
@@ -216,7 +285,7 @@ Dict<String> Regex::searchbyname(const String& s, int options) {
 		return d;
 	}
 	if (matches <= 0) {
-		throw RuntimeError("error while executing the regex");
+		throw RuntimeError(Regex::strerror(matches));
 	}
 
 	// put biggest match in d["$_"]
