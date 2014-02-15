@@ -24,3 +24,4 @@ testDaemon
 testObserver
 testDefer
 testFunctor
+testRegex

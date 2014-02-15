@@ -50,6 +50,7 @@
 #include "oo/Sizeable.h"
 #include "oo/Sock.h"
 #include "oo/String.h"
+#include "oo/Regex.h"
 #include "oo/daemon.h"
 #include "oo/defer.h"
 #include "oo/dir.h"
