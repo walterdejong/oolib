@@ -43,9 +43,9 @@ int main(void) {
 	m = re.match("the yellow dog jumped over the hairy cat");
 	print("re.match: %q", &m);
 
-	// \w+ does only matches ASCII chars
-//	m = re.match(u8"the quick 狐 jumped over the lazy 犬");
-//	print("re.match: %q", &m);
+	// \w+ does only matches ASCII chars, but we can pass UNICODE
+	m = re.match(u8"the quick 狐 jumped over the lazy 犬", Regex::UNICODE);
+	print("re.match: %q", &m);
 	print();
 
 	re = R"(the \w+\s\w+ jumped over the \w+\s\w+)";
@@ -56,7 +56,6 @@ int main(void) {
 	print("re.match test2: %s", (!m) ? "OK" : "FAIL");
 	print();
 
-	// match UTF-8 strings
 	re = u8R"(交易金额：(\d+)元)";
 	print("re: %v", &re);
 	m = re.match(u8R"(交易金额：600元)");

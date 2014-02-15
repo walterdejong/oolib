@@ -42,8 +42,8 @@ std::string Regex::repr(void) const {
 	return ss.str();
 }
 
-void Regex::precompile(void) {
-	if (re_.get() != nullptr) {
+void Regex::precompile(int options) {
+	if (re_.get() != nullptr && options == options_) {
 		// already compiled, and cached
 		return;
 	}
@@ -51,20 +51,23 @@ void Regex::precompile(void) {
 		throw ValueError();
 	}
 
+	// oo::String are UTF-8 strings, so use PCRE_UTF8
+	options |= PCRE_UTF8;
+
 	const char *errmsg = nullptr;
 	int erroffset = 0;
-	// oo::String are UTF-8 strings, so use PCRE_UTF8
-	pcre *compiled = pcre_compile(pattern_.c_str(), PCRE_UTF8, &errmsg, &erroffset, nullptr);
 
+	pcre *compiled = pcre_compile(pattern_.c_str(), options, &errmsg, &erroffset, nullptr);
 	if (compiled == nullptr) {
 		throw RuntimeError(errmsg);
 	}
 
 	re_ = std::shared_ptr<pcre>(compiled, PcreDeleter());
+	options_ = options;
 }
 
-void Regex::compile(void) {
-	precompile();
+void Regex::compile(int options) {
+	precompile(options);
 
 	if (study_.get() != nullptr) {
 		// already studied, and cached
@@ -82,7 +85,7 @@ void Regex::compile(void) {
 }
 
 Array<String> Regex::search(const String& s, int options) {
-	precompile();
+	precompile(options);
 
 	Array<String> arr;
 
@@ -100,7 +103,7 @@ Array<String> Regex::search(const String& s, int options) {
 
 	// execute the regex match
 
-	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, options, ovector, capcount * 3);
+	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, 0, ovector, capcount * 3);
 	if (matches == PCRE_ERROR_NOMATCH) {
 		return arr;
 	}
@@ -135,7 +138,7 @@ Array<String> Regex::findall(const String& s, int options) {
 		this func is the very same as search(), except that it loops
 		to find all matches in the subject string
 	*/
-	precompile();
+	precompile(options);
 
 	Array<String> arr;
 
@@ -157,7 +160,7 @@ Array<String> Regex::findall(const String& s, int options) {
 	// execute the regex match
 
 	while(offset < subject_len) {
-		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, options, ovector, capcount * 3);
+		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, 0, ovector, capcount * 3);
 		if (matches == PCRE_ERROR_NOMATCH) {
 			return arr;
 		}
@@ -190,7 +193,7 @@ Array<String> Regex::findall(const String& s, int options) {
 }
 
 Dict<String> Regex::searchbyname(const String& s, int options) {
-	precompile();
+	precompile(options);
 
 	Dict<String> d;
 
@@ -208,7 +211,7 @@ Dict<String> Regex::searchbyname(const String& s, int options) {
 
 	// execute the regex match
 
-	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, options, ovector, capcount * 3);
+	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, 0, ovector, capcount * 3);
 	if (matches == PCRE_ERROR_NOMATCH) {
 		return d;
 	}

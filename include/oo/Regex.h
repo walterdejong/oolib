@@ -44,11 +44,18 @@ namespace oo {
 
 class Regex : public Base {
 public:
-	Regex() : Base(), pattern_(), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
+	// some aliases for often-used PCRE "compile-time" options
+	static const int IGNORECASE = PCRE_CASELESS;
+	static const int DOTALL = PCRE_DOTALL;
+	static const int MULTILINE = PCRE_MULTILINE;
+	static const int UNICODE = PCRE_UCP;
+	static const int VERBOSE = PCRE_EXTENDED;
 
-	Regex(const String& s) : Base(), pattern_(s), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
+	Regex() : Base(), pattern_(), options_(0), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
 
-	Regex(const Regex& r) : Base(), pattern_(r.pattern_), re_(r.re_), study_(r.study_) { }
+	Regex(const String& s) : Base(), pattern_(s), options_(0), re_(std::shared_ptr<pcre>()), study_(std::shared_ptr<pcre_extra>()) { }
+
+	Regex(const Regex& r) : Base(), pattern_(r.pattern_), options_(0), re_(r.re_), study_(r.study_) { }
 
 	Regex(Regex&& r) : Regex() {
 		swap(*this, r);
@@ -77,7 +84,7 @@ public:
 
 	bool operator!(void) const { return pattern_.empty(); }
 
-	void compile(void);		// 'studies' the regex
+	void compile(int options=0);	// 'studies' the regex
 
 	Array<String> match(const String& s, int options=0) {
 		return search(s, options|PCRE_ANCHORED);
@@ -111,9 +118,10 @@ private:
 		}
 	};
 
-	void precompile(void);
+	void precompile(int options=0);
 
 	String pattern_;
+	int options_;
 	std::shared_ptr<pcre> re_;			// compiled pattern
 	std::shared_ptr<pcre_extra> study_;	// extra study data
 };
