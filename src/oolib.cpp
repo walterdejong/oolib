@@ -31,8 +31,8 @@
 
 namespace oo {
 
-const unsigned int version_number = 0x000800;
-const char *version_string = "0.8.0";
+const unsigned int version_number = 0x000900;
+const char *version_string = "0.9.0";
 const char *copyright = "oolib Copyright 2014 by Walter de Jong <walter@heiho.net>";
 
 }	// namespace
