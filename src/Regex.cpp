@@ -336,20 +336,7 @@ Dict<String> Match::groupdict(void) const {
 		throw ReferenceError();
 	}
 
-	// put biggest match in d["$_"]
-	const char *result = nullptr;
-	if (pcre_get_substring(subject, ovector, matches_, 0, &result) < 0) {
-		throw RuntimeError("error extracting regex results");
-	}
-	d["$_"] = result;
-	pcre_free_substring(result);
-	result = nullptr;
-
 	// let's go put all results in dict, by name
-
-	if (namecount_ <= 0) {
-		return d;
-	}
 
 	if (namesize_ <= 0) {
 		throw RuntimeError("illegal value for regex name size");
@@ -360,8 +347,14 @@ Dict<String> Match::groupdict(void) const {
 		throw ReferenceError();
 	}
 
-	// put the results in dict
+	if (namecount_ <= 0) {
+		// there are no names
+		return d;
+	}
+
 	// walk the name table, get the result number, put result in dict
+
+	const char *result = nullptr;
 
 	for(int i = 0; i < namecount_; i++) {
 		// first two bytes in the nametable represent the number

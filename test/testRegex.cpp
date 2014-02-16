@@ -114,7 +114,7 @@ int main(void) {
 		d = m.groupdict();
 		print("m.groupdict(): %q", &d);
 	}
-	print("re.matchbyname: %q", &d);
+	print("re.groupdict(): %q", &d);
 	m = re.match("the brown fox jumped over the grey hare");
 	if (!m) {
 		print("re.match() FAIL");
