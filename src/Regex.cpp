@@ -106,8 +106,13 @@ void Regex::precompile(int options) {
 		throw ValueError();
 	}
 
+	int orig_options = options;
+
 	// oo::String are UTF-8 strings, so use PCRE_UTF8
 	options |= PCRE_UTF8;
+
+	// remove options that are only meant for runtime
+	options &= ~(PCRE_DOLLAR_ENDONLY|PCRE_NO_START_OPTIMIZE);
 
 	const char *errmsg = nullptr;
 	int erroffset = 0;
@@ -125,20 +130,23 @@ void Regex::precompile(int options) {
 	}
 
 	re_ = std::shared_ptr<pcre>(compiled, PcreDeleter());
-	options_ = options;
+	options_ = orig_options;
 }
 
 void Regex::compile(int options) {
-	precompile(options);
-
-	if (study_.get() != nullptr) {
+	if (study_.get() != nullptr && options == options_) {
 		// already studied, and cached
 		return;
 	}
 
+	precompile(options);
+
+	// keep only those options that are meant for study
+	options &= (PCRE_ANCHORED|PCRE_UTF8|PCRE_JAVASCRIPT_COMPAT);
+
 	const char *errmsg = nullptr;
 
-	pcre_extra *extra = pcre_study(re_.get(), 0, &errmsg);
+	pcre_extra *extra = pcre_study(re_.get(), options, &errmsg);
 	if (extra == nullptr) {
 		if (errmsg == nullptr) {
 			throw ReferenceError();
@@ -159,7 +167,7 @@ Match Regex::search(const String& s, int options) {
 	Match m;
 
 	m.prepare_(s, re_.get(), study_.get());
-	m.exec_(re_.get(), study_.get());
+	m.exec_(re_.get(), study_.get(), options);
 
 	return m;
 }
@@ -184,12 +192,18 @@ Array<Array<String> > Regex::findall(const String& s, int options) {
 	int subject_len = std::strlen(subject);
 	int offset = 0;
 
+	// keep only options that can be passed to pcre_exec()
+	options &= (PCRE_ANCHORED|PCRE_NOTBOL|PCRE_NOTEOL|PCRE_NOTEMPTY|PCRE_NO_UTF8_CHECK| \
+		PCRE_PARTIAL_SOFT|PCRE_NEWLINE_CR|PCRE_NEWLINE_LF|PCRE_NEWLINE_CRLF|PCRE_NEWLINE_ANY| \
+		PCRE_NEWLINE_ANYCRLF|PCRE_BSR_ANYCRLF|PCRE_BSR_UNICODE|PCRE_NO_START_OPTIMIZE| \
+		PCRE_PARTIAL_HARD|PCRE_NOTEMPTY_ATSTART);
+
 	// execute the regex match
 
 	while(offset < subject_len) {
 		Array<String> arr;
 
-		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, 0, ovector, capcount * 3);
+		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, options, ovector, capcount * 3);
 		if (matches == PCRE_ERROR_NOMATCH) {
 			return out;
 		}
@@ -350,7 +364,7 @@ void Match::prepare_(const String& subj, const pcre *re, const pcre_extra *sd) {
 	subject_ = subj;
 }
 
-void Match::exec_(const pcre *re, const pcre_extra *sd) {
+void Match::exec_(const pcre *re, const pcre_extra *sd, int options) {
 	// execute compiled regex, set number of matches in Match
 
 	const char *subj = subject_.c_str();
@@ -358,7 +372,13 @@ void Match::exec_(const pcre *re, const pcre_extra *sd) {
 		throw ReferenceError();
 	}
 
-	matches_ = pcre_exec(re, sd, subj, std::strlen(subj), 0, 0, ovector_.get(), ovecsize_ * 3);
+	// keep only options that can be passed to pcre_exec()
+	options &= (PCRE_ANCHORED|PCRE_NOTBOL|PCRE_NOTEOL|PCRE_NOTEMPTY|PCRE_NO_UTF8_CHECK| \
+		PCRE_PARTIAL_SOFT|PCRE_NEWLINE_CR|PCRE_NEWLINE_LF|PCRE_NEWLINE_CRLF|PCRE_NEWLINE_ANY| \
+		PCRE_NEWLINE_ANYCRLF|PCRE_BSR_ANYCRLF|PCRE_BSR_UNICODE|PCRE_NO_START_OPTIMIZE| \
+		PCRE_PARTIAL_HARD|PCRE_NOTEMPTY_ATSTART);
+
+	matches_ = pcre_exec(re, sd, subj, std::strlen(subj), 0, options, ovector_.get(), ovecsize_ * 3);
 	if (matches_ == PCRE_ERROR_NOMATCH) {
 		return;
 	}

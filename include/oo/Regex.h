@@ -116,7 +116,7 @@ private:
 	String subject_;
 
 	void prepare_(const String&, const pcre *, const pcre_extra *);
-	void exec_(const pcre *, const pcre_extra *);
+	void exec_(const pcre *, const pcre_extra *, int);
 
 	friend class Regex;
 };
