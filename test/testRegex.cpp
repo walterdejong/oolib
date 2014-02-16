@@ -32,20 +32,39 @@
 using namespace oo;
 
 int main(void) {
-	Regex re(R"((\d+))");
+	Regex re;
+	Match m;
+	Array<String> a;
+
+	re = R"((\d+))";
 	print("re: %v", &re);
-	Array<String> m = re.match("123");
-	print("re.match: %q", &m);
+	m = re.match("123");
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		a = m.groups();
+		print("re.match: %q", &a);
+	}
 	print();
 
 	re = R"(the (\w+\s\w+) jumped over the (\w+\s\w+))";
 	print("re: %v", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
-	print("re.match: %q", &m);
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		a = m.groups();
+		print("re.match: %q", &a);
+	}
 
 	// \w+ does only matches ASCII chars, but we can pass UNICODE
 	m = re.match(u8"the quick 狐 jumped over the lazy 犬", Regex::UNICODE);
-	print("re.match: %q", &m);
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		a = m.groups();
+		print("re.match: %q", &a);
+	}
 	print();
 
 	re = R"(the \w+\s\w+ jumped over the \w+\s\w+)";
@@ -59,36 +78,67 @@ int main(void) {
 	re = u8R"(交易金额：(\d+)元)";
 	print("re: %v", &re);
 	m = re.match(u8R"(交易金额：600元)");
-	print("re.match: %q", &m);
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		a = m.groups();
+		print("re.match: %q", &a);
+	}
 	print();
 
 	re = R"((\d+))";
 	print("re: %v", &re);
 	m = re.search(u8R"(交易金额：600元)");
-	print("re.search: %q", &m);
+	if (!m) {
+		print("re.search() FAIL");
+	} else {
+		a = m.groups();
+		print("re.search: %q", &a);
+	}
 	print();
 
-	m = re.findall("100 200 300 400 500 600 monkeys");
-	print("re.findall: %q", &m);
+	a = re.findall("100 200 300 400 500 600 monkeys");
+	print("re.findall: %q", &a);
 	print();
 
+	Dict<String> d;
 	re = R"(the (?<which>\w+\s\w+) jumped over the (?<what>\w+\s\w+))";
 	re.compile();
 	print("re: %v", &re);
-	Dict<String> d = re.matchbyname("the yellow dog jumped over the hairy cat");
+	m = re.match("the yellow dog jumped over the hairy cat");
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		d = m.groupdict();
+		print("m.groupdict(): %q", &d);
+	}
 	print("re.matchbyname: %q", &d);
-	d = re.matchbyname("the brown fox jumped over the grey hare");
-	print("re.matchbyname: %q", &d);
-	d = re.matchbyname("the grey hare jumped over the sleepy tortoise");
-	print("re.matchbyname: %q", &d);
-	d = re.matchbyname("the ninja turtle jumped over the angry pig");
-	print("re.matchbyname: %q", &d);
+	m = re.match("the brown fox jumped over the grey hare");
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		d = m.groupdict();
+		print("m.groupdict(): %q", &d);
+	}
+	m = re.match("the grey hare jumped over the sleepy tortoise");
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		d = m.groupdict();
+		print("m.groupdict(): %q", &d);
+	}
+	m = re.match("the ninja turtle jumped over the angry pig");
+	if (!m) {
+		print("re.match() FAIL");
+	} else {
+		d = m.groupdict();
+		print("m.groupdict(): %q", &d);
+	}
 	print();
 
 /*
-	// force an error
-	d = re.matchbyname("the ninja turtle jumped over the angry pig", 18762);
-	print("re.matchbyname: %q", &d);
+	// force an error (invalid option bits)
+	re.match("the ninja turtle jumped over the angry pig", 18762);
 	print();
 */
 	return 0;

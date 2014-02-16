@@ -153,60 +153,18 @@ void Regex::compile(int options) {
 	study_ = std::shared_ptr<pcre_extra>(extra, PcreStudyDeleter());
 }
 
-Array<String> Regex::search(const String& s, int options) {
+Match Regex::search(const String& s, int options) {
 	precompile(options);
 
-	Array<String> arr;
+	Match m;
 
-	int capcount = 0;
-	if (pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_CAPTURECOUNT, &capcount) < 0) {
-		throw ValueError("invalid regex");
-	}
-	capcount++;
-	int ovector[capcount * 3];
+	m.prepare_(s, re_.get(), study_.get());
+	m.exec_(re_.get(), study_.get());
 
-	const char *subject = s.c_str();
-	if (subject == nullptr) {
-		throw ReferenceError();
-	}
-
-	// execute the regex match
-
-	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, 0, ovector, capcount * 3);
-	if (matches == PCRE_ERROR_NOMATCH) {
-		return arr;
-	}
-	if (matches <= 0) {
-		throw RuntimeError(Regex::strerror(matches));
-	}
-
-	// put the results in array
-
-	const char **results = nullptr;
-	if (pcre_get_substring_list(subject, ovector, matches, &results) < 0) {
-		throw RuntimeError("error extracting regex results");
-	}
-
-	arr.grow(matches);
-
-	int n = 0;
-	for(const char *p = results[0]; p != nullptr; n++, p = results[n]) {
-		if (p == nullptr) {
-			// PCRE results should never be nullptr
-			throw ReferenceError();
-		}
-		arr.append(String(p));
-	}
-	pcre_free_substring_list(results);
-
-	return arr;
+	return m;
 }
 
 Array<String> Regex::findall(const String& s, int options) {
-	/*
-		this func is the very same as search(), except that it loops
-		to find all matches in the subject string
-	*/
 	precompile(options);
 
 	Array<String> arr;
@@ -246,7 +204,8 @@ Array<String> Regex::findall(const String& s, int options) {
 
 		arr.grow(arr.len() + matches);
 
-		int n = (offset == 0) ? 0 : 1;
+		// first match is entire string; skip it
+		int n = 1;
 		for(const char *p = results[n]; p != nullptr; n++, p = results[n]) {
 			if (p == nullptr) {
 				// PCRE results should never be nullptr
@@ -261,36 +220,121 @@ Array<String> Regex::findall(const String& s, int options) {
 	return arr;
 }
 
-Dict<String> Regex::searchbyname(const String& s, int options) {
-	precompile(options);
+void Match::prepare_(const String& subject, const pcre *re, const pcre_extra *sd) {
+	// prepare for execution; set ovector, copy nametable
 
-	Dict<String> d;
-
-	int capcount = 0;
-	if (pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_CAPTURECOUNT, &capcount) < 0) {
+	if (pcre_fullinfo(re, sd, PCRE_INFO_CAPTURECOUNT, &ovecsize_) < 0) {
 		throw ValueError("invalid regex");
 	}
-	capcount++;
-	int ovector[capcount * 3];
 
-	const char *subject = s.c_str();
+	ovecsize_++;
+	ovector_ = std::shared_ptr<int>(new int[ovecsize_ * 3], std::default_delete<int[]>());
+
+	namecount_ = 0;
+	pcre_fullinfo(re, sd, PCRE_INFO_NAMECOUNT, &namecount_);
+	if (namecount_ > 0) {
+		namesize_ = 0;
+		pcre_fullinfo(re, sd, PCRE_INFO_NAMEENTRYSIZE, &namesize_);
+		if (namesize_ <= 0) {
+			throw RuntimeError("illegal value for regex name size");
+		}
+
+		const char *nametable = nullptr;
+		pcre_fullinfo(re, sd, PCRE_INFO_NAMETABLE, &nametable);
+		if (nametable == nullptr) {
+			throw RuntimeError("error getting regex name table");
+		}
+
+		// the nametable is bound to the regex
+		// in order to preserve memory integrity, we must copy the nametable
+		// otherwise Regex may go out of scope, and the Match object would have a problem
+
+		nametable_ = std::shared_ptr<char>(new char[namecount_ * namesize_], std::default_delete<char[]>());
+		std::memcpy(nametable_.get(), nametable, namecount_ * namesize_);
+	}
+
+	// copy the subject string
+	subject_ = subject;
+}
+
+void Match::exec_(const pcre *re, const pcre_extra *sd) {
+	// execute compiled regex, set number of matches in Match
+
+	const char *subject = subject_.c_str();
 	if (subject == nullptr) {
 		throw ReferenceError();
 	}
 
-	// execute the regex match
+	matches_ = pcre_exec(re, sd, subject, std::strlen(subject), 0, 0, ovector_.get(), ovecsize_ * 3);
+	if (matches_ == PCRE_ERROR_NOMATCH) {
+		return;
+	}
+	if (matches_ < 0) {
+		throw RuntimeError(Regex::strerror(matches_));
+	}
+}
 
-	int matches = pcre_exec(re_.get(), study_.get(), subject, std::strlen(subject), 0, 0, ovector, capcount * 3);
-	if (matches == PCRE_ERROR_NOMATCH) {
+Array<String> Match::groups(void) const {
+	// put the result subgroups in array
+
+	Array<String> arr;
+
+	if (matches_ <= 0) {
+		return arr;
+	}
+
+	const char *subject = subject_.c_str();
+	if (subject == nullptr) {
+		throw ReferenceError();
+	}
+
+	int *ovector = ovector_.get();
+	if (ovector == nullptr) {
+		throw ReferenceError();
+	}
+
+	const char **results = nullptr;
+	if (pcre_get_substring_list(subject, ovector, matches_, &results) < 0) {
+		throw RuntimeError("error extracting regex results");
+	}
+
+	arr.grow(matches_);
+
+	// start at 1; result 0 is the entire string
+	int n = 1;
+	for(const char *p = results[n]; p != nullptr; n++, p = results[n]) {
+		if (p == nullptr) {
+			// PCRE results should never be nullptr
+			throw ReferenceError();
+		}
+		arr.append(String(p));
+	}
+	pcre_free_substring_list(results);
+	return arr;
+}
+
+Dict<String> Match::groupdict(void) const {
+	// put results in dict
+
+	Dict<String> d;
+
+	if (matches_ <= 0) {
 		return d;
 	}
-	if (matches <= 0) {
-		throw RuntimeError(Regex::strerror(matches));
+
+	const char *subject = subject_.c_str();
+	if (subject == nullptr) {
+		throw ReferenceError();
+	}
+
+	int *ovector = ovector_.get();
+	if (ovector == nullptr) {
+		throw ReferenceError();
 	}
 
 	// put biggest match in d["$_"]
 	const char *result = nullptr;
-	if (pcre_get_substring(subject, ovector, matches, 0, &result) < 0) {
+	if (pcre_get_substring(subject, ovector, matches_, 0, &result) < 0) {
 		throw RuntimeError("error extracting regex results");
 	}
 	d["$_"] = result;
@@ -299,43 +343,41 @@ Dict<String> Regex::searchbyname(const String& s, int options) {
 
 	// let's go put all results in dict, by name
 
-	int namecount = 0;
-	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMECOUNT, &namecount);
-	if (namecount <= 0) {
-		// there are no names; return d as it is now
+	if (namecount_ <= 0) {
 		return d;
 	}
 
-	int namesize = 0;
-	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMEENTRYSIZE, &namesize);
-	if (namesize <= 0) {
+	if (namesize_ <= 0) {
 		throw RuntimeError("illegal value for regex name size");
 	}
 
-	char *nametable = nullptr;
-	pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_NAMETABLE, &nametable);
+	char *nametable = nametable_.get();
 	if (nametable == nullptr) {
-		throw RuntimeError("error getting regex name table");
+		throw ReferenceError();
 	}
 
 	// put the results in dict
 	// walk the name table, get the result number, put result in dict
 
-	for(int i = 0; i < namecount; i++) {
+	for(int i = 0; i < namecount_; i++) {
+		// first two bytes in the nametable represent the number
+		// after that is the name
 		char *name = nametable + 2;
-		int num = pcre_get_stringnumber(re_.get(), name);
-		if (num < 0) {
-			throw RuntimeError("error getting regex result number by name");
+
+		// FIXME use host/network order
+		int num = (nametable[0] << 8) | nametable[1];
+		if (num < 0 || num > ovecsize_) {
+			throw RuntimeError("illegal value for regex group number");
 		}
 
-		if (pcre_get_substring(subject, ovector, matches, num, &result) < 0) {
+		if (pcre_get_substring(subject, ovector, matches_, num, &result) < 0) {
 			throw RuntimeError("error extracting regex results");
 		}
 		d[name] = result;
 		pcre_free_substring(result);
 		result = nullptr;
 
-		nametable += namesize;
+		nametable += namesize_;
 	}
 	return d;
 }
