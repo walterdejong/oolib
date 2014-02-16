@@ -96,6 +96,8 @@ public:
 		return -1;
 	}
 
+	// Note: be careful with unicode strings;
+	// Note: positions are byte positions, NOT character positions
 	int start(int group=0) const;
 	int end(int group=0) const;
 	MatchPos span(int group=0) const;
@@ -167,6 +169,7 @@ public:
 
 	Match search(const String&, int options=0);
 	Array<Array<String> > findall(const String&, int options=0);
+	String sub(const String&, const String&, int count=0, int options=0);
 
 	static const char *errmsg[];
 	static const char *strerror(int);

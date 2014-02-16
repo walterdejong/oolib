@@ -153,6 +153,15 @@ int main(void) {
 	}
 	print();
 
+	re = R"(\s+AND\s+)";
+	s = re.sub(" & ", "Ham  and  Eggs", 0, Regex::IGNORECASE);
+	print("re.sub(): %q", &s);
+
+	re = R"(\d+)";
+	s = re.sub("more and", "1 2 3 more bacon 4 me", 3);
+	print("re.sub(): %q", &s);
+	print();
+
 /*
 	// force an error (invalid option bits)
 	re.match("the ninja turtle jumped over the angry pig", 18762);
