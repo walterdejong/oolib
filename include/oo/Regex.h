@@ -1,5 +1,7 @@
 /*
 	ooRegex.h	WJ114
+
+	- requires PCRE built with 8 bits, UTF-8, and unicode support
 */
 /*
  * Copyright (c) 2014, Walter de Jong

@@ -3,6 +3,12 @@
 #
 #	for oolib
 #
+#	- Note that I use /usr/local/include, /usr/local/lib
+#	  because that's where my correct libpcre is
+#	- requires PCRE built with 8 bits, UTF-8, and unicode support
+#
+
+#
 # Copyright (c) 2014, Walter de Jong
 # All rights reserved.
 #
