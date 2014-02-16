@@ -158,6 +158,7 @@ public:
 	}
 
 	std::string repr(void) const;
+	std::string str(void) const { return pattern_.str(); }
 
 	bool operator!(void) const { return pattern_.empty(); }
 
@@ -171,6 +172,7 @@ public:
 	Array<Array<String> > findall(const String&, int options=0);
 	String sub(const String&, const String&, int count=0, int options=0);
 	Array<String> split(const String&, int count=0, int options=0);
+	String escape(void) const;
 
 	static const char *errmsg[];
 	static const char *strerror(int);

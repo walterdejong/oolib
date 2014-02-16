@@ -37,7 +37,7 @@ int main(void) {
 	Array<String> a;
 
 	re = R"((\d+))";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.match("123");
 	if (!m) {
 		print("re.match() FAIL");
@@ -48,7 +48,7 @@ int main(void) {
 	print();
 
 	re = R"(the (\w+\s\w+) jumped over the (\w+\s\w+))";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
 	if (!m) {
 		print("re.match() FAIL");
@@ -68,7 +68,7 @@ int main(void) {
 	print();
 
 	re = R"(the \w+\s\w+ jumped over the \w+\s\w+)";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
 	print("re.match: %s", (!m) ? "FAIL" : "OK");
 	m = re.match("the quick brown fox jumped over the lazy dog");
@@ -76,7 +76,7 @@ int main(void) {
 	print();
 
 	re = u8R"(交易金额：(\d+)元)";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.match(u8R"(交易金额：600元)");
 	if (!m) {
 		print("re.match() FAIL");
@@ -87,7 +87,7 @@ int main(void) {
 	print();
 
 	re = R"((\d+))";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.search(u8R"(交易金额：600元)");
 	if (!m) {
 		print("re.search() FAIL");
@@ -98,7 +98,7 @@ int main(void) {
 	print();
 
 	re = R"((\d+) (\d+))";
-	print("re: %v", &re);
+	print("re: %q", &re);
 	Array<Array<String> > aa = re.findall("100 200 300 400 500 600 monkeys");
 	print("re.findall: %q", &aa);
 	print();
@@ -106,7 +106,7 @@ int main(void) {
 	Dict<String> d;
 	re = R"(the (?<which>\w+\s\w+) jumped over the (?<what>\w+\s\w+))";
 	re.compile();
-	print("re: %v", &re);
+	print("re: %q", &re);
 	m = re.match("the yellow dog jumped over the hairy cat");
 	if (!m) {
 		print("re.match() FAIL");
@@ -175,6 +175,11 @@ int main(void) {
 	re = R"([a-f]+)";
 	a = re.split("0a3B9", 0, Regex::IGNORECASE);
 	print("re.split(): %q", &a);
+	print();
+
+	re = R"((?<days>\d+) days)";
+	s = re.escape();
+	print("re.escape(): \"%v\" : %q", &re, &s);
 	print();
 
 /*

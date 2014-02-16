@@ -294,6 +294,25 @@ Array<String> Regex::split(const String& s, int count, int options) {
 	return out;
 }
 
+String Regex::escape(void) const {
+	String out;
+
+	// escape all non-alphanumeric characters
+
+	rune r;
+	size_t s_len = pattern_.len();
+	for(size_t i = 0; i < s_len; i++) {
+		r = pattern_[i];
+		if (r < 0x80 && ((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9'))) {
+			out += r;
+		} else {
+			out += '\\';
+			out += r;
+		}
+	}
+	return out;
+}
+
 void Match::prepare_(const String& subj, const pcre *re, const pcre_extra *sd) {
 	// prepare for execution; set ovector, copy nametable
 
