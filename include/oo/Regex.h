@@ -86,14 +86,21 @@ public:
 		return matches_ <= 0;
 	}
 
-/*
-	int lastindex(void) const;
+	Array<String> groups(void) const;
+	Dict<String> groupdict(void) const;
+
+	int lastindex(void) const {
+		if (matches_ > 0) {
+			return matches_ - 1;
+		}
+		return -1;
+	}
+
 	int start(int group=0) const;
 	int end(int group=0) const;
 	MatchPos span(int group=0) const;
-*/
-	Array<String> groups(void) const;
-	Dict<String> groupdict(void) const;
+
+	String subject(void) const { return subject_; }
 
 private:
 	std::shared_ptr<int> ovector_;

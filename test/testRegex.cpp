@@ -138,6 +138,21 @@ int main(void) {
 	}
 	print();
 
+	// test positions, span
+	int x, y;
+	MatchPos pos;
+	String s;
+	int lastindex = m.lastindex();
+	print("m.lastindex: %d", lastindex);
+	for(int group = 0; group <= lastindex; group++) {
+		x = m.start(group);
+		y = m.end(group);
+		pos = m.span(group);
+		s = m.subject().slice(x, y);
+		print("start: %-2d  end: %-2d  span(%d, %d)  s: %q", x, y, pos.start, pos.end, &s);
+	}
+	print();
+
 /*
 	// force an error (invalid option bits)
 	re.match("the ninja turtle jumped over the angry pig", 18762);

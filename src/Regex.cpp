@@ -224,7 +224,7 @@ Array<Array<String> > Regex::findall(const String& s, int options) {
 	return out;
 }
 
-void Match::prepare_(const String& subject, const pcre *re, const pcre_extra *sd) {
+void Match::prepare_(const String& subj, const pcre *re, const pcre_extra *sd) {
 	// prepare for execution; set ovector, copy nametable
 
 	if (pcre_fullinfo(re, sd, PCRE_INFO_CAPTURECOUNT, &ovecsize_) < 0) {
@@ -258,18 +258,18 @@ void Match::prepare_(const String& subject, const pcre *re, const pcre_extra *sd
 	}
 
 	// copy the subject string
-	subject_ = subject;
+	subject_ = subj;
 }
 
 void Match::exec_(const pcre *re, const pcre_extra *sd) {
 	// execute compiled regex, set number of matches in Match
 
-	const char *subject = subject_.c_str();
-	if (subject == nullptr) {
+	const char *subj = subject_.c_str();
+	if (subj == nullptr) {
 		throw ReferenceError();
 	}
 
-	matches_ = pcre_exec(re, sd, subject, std::strlen(subject), 0, 0, ovector_.get(), ovecsize_ * 3);
+	matches_ = pcre_exec(re, sd, subj, std::strlen(subj), 0, 0, ovector_.get(), ovecsize_ * 3);
 	if (matches_ == PCRE_ERROR_NOMATCH) {
 		return;
 	}
@@ -287,8 +287,8 @@ Array<String> Match::groups(void) const {
 		return arr;
 	}
 
-	const char *subject = subject_.c_str();
-	if (subject == nullptr) {
+	const char *subj = subject_.c_str();
+	if (subj == nullptr) {
 		throw ReferenceError();
 	}
 
@@ -298,7 +298,7 @@ Array<String> Match::groups(void) const {
 	}
 
 	const char **results = nullptr;
-	if (pcre_get_substring_list(subject, ovector, matches_, &results) < 0) {
+	if (pcre_get_substring_list(subj, ovector, matches_, &results) < 0) {
 		throw RuntimeError("error extracting regex results");
 	}
 
@@ -326,8 +326,8 @@ Dict<String> Match::groupdict(void) const {
 		return d;
 	}
 
-	const char *subject = subject_.c_str();
-	if (subject == nullptr) {
+	const char *subj = subject_.c_str();
+	if (subj == nullptr) {
 		throw ReferenceError();
 	}
 
@@ -366,7 +366,7 @@ Dict<String> Match::groupdict(void) const {
 			throw RuntimeError("illegal value for regex group number");
 		}
 
-		if (pcre_get_substring(subject, ovector, matches_, num, &result) < 0) {
+		if (pcre_get_substring(subj, ovector, matches_, num, &result) < 0) {
 			throw RuntimeError("error extracting regex results");
 		}
 		d[name] = result;
@@ -376,6 +376,48 @@ Dict<String> Match::groupdict(void) const {
 		nametable += namesize_;
 	}
 	return d;
+}
+
+int Match::start(int group) const {
+	if (group < 0 || group > matches_ - 1) {
+		throw ValueError();
+	}
+
+	int *ovector = ovector_.get();
+	if (ovector == nullptr) {
+		throw ReferenceError();
+	}
+
+	return ovector[group * 2];
+}
+
+int Match::end(int group) const {
+	if (group < 0 || group > matches_ - 1) {
+		throw ValueError();
+	}
+
+	int *ovector = ovector_.get();
+	if (ovector == nullptr) {
+		throw ReferenceError();
+	}
+
+	return ovector[group * 2 + 1];
+}
+
+MatchPos Match::span(int group) const {
+	if (group < 0 || group > matches_ - 1) {
+		throw ValueError();
+	}
+
+	int *ovector = ovector_.get();
+	if (ovector == nullptr) {
+		throw ReferenceError();
+	}
+
+	MatchPos pos;
+	pos.start = ovector[group * 2];
+	pos.end = ovector[group * 2 + 1];
+	return pos;
 }
 
 }	// namespace oo
