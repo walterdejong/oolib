@@ -42,6 +42,83 @@
 
 namespace oo {
 
+/*
+	class Regex represents the regex; does the compiling of the regex
+	class Match represents the match; gets results from the 'ovector'
+*/
+
+typedef struct {
+	int start, end;
+} MatchPos;
+
+class Match : public Base {
+public:
+	Match() : Base(), ovector_(std::shared_ptr<int>()), ovecsize_(0), matches_(0),
+		nametable_(std::shared_ptr<char>()), namecount_(0), namesize_(0), subject_() { }
+
+	Match(const Match& m) : Base(), ovector_(m.ovector_), ovecsize_(m.ovecsize_), matches_(m.matches_),
+		nametable_(m.nametable_), namecount_(m.namecount_), namesize_(m.namesize_), subject_(m.subject_) { }
+
+	Match(Match&& m) {
+		swap(*this, m);
+	}
+
+//	virtual ~Match() { }
+
+	Match& operator=(Match copy) {
+		swap(*this, copy);
+		return *this;
+	}
+
+	static void swap(Match& a, Match& b) {
+		std::swap(a.ovector_, b.ovector_);
+		std::swap(a.ovecsize_, b.ovecsize_);
+		std::swap(a.matches_, b.matches_);
+		std::swap(a.nametable_, b.nametable_);
+		std::swap(a.namecount_, b.namecount_);
+		std::swap(a.namesize_, b.namesize_);
+		std::swap(a.subject_, b.subject_);
+	}
+
+	std::string repr(void) const { return "<Match>"; }
+
+	bool operator!(void) const {
+		return matches_ <= 0;
+	}
+
+	Array<String> groups(void) const;
+	Dict<String> groupdict(void) const;
+
+	int lastindex(void) const {
+		if (matches_ > 0) {
+			return matches_ - 1;
+		}
+		return -1;
+	}
+
+	// Note: be careful with unicode strings;
+	// Note: positions are byte positions, NOT character positions
+	int start(int group=0) const;
+	int end(int group=0) const;
+	MatchPos span(int group=0) const;
+
+	String subject(void) const { return subject_; }
+
+private:
+	std::shared_ptr<int> ovector_;
+	int ovecsize_, matches_;
+
+	std::shared_ptr<char> nametable_;
+	int namecount_, namesize_;
+
+	String subject_;
+
+	void prepare_(const String&, const pcre *, const pcre_extra *);
+	void exec_(const pcre *, const pcre_extra *);
+
+	friend class Regex;
+};
+
 class Regex : public Base {
 public:
 	// some aliases for often-used PCRE "compile-time" options
@@ -86,25 +163,20 @@ public:
 
 	void compile(int options=0);	// 'studies' the regex
 
-	Array<String> match(const String& s, int options=0) {
+	Match match(const String& s, int options=0) {
 		return search(s, options|PCRE_ANCHORED);
 	}
 
-	Array<String> search(const String&, int options=0);
-	Array<String> findall(const String&, int options=0);
-
-	Dict<String> matchbyname(const String& s, int options=0) {
-		return searchbyname(s, options|PCRE_ANCHORED);
-	}
-
-	Dict<String> searchbyname(const String&, int options=0);
+	Match search(const String&, int options=0);
+	Array<Array<String> > findall(const String&, int options=0);
+	String sub(const String&, const String&, int count=0, int options=0);
+	Array<String> split(const String&, int count=0, int options=0);
 
 	static const char *errmsg[];
 	static const char *strerror(int);
 
 private:
-	class PcreDeleter {
-	public:
+	struct PcreDeleter {
 		void operator()(pcre *p) {
 			if (p != nullptr) {
 				pcre_free(p);
@@ -112,8 +184,7 @@ private:
 		}
 	};
 
-	class PcreStudyDeleter {
-	public:
+	struct PcreStudyDeleter {
 		void operator()(pcre_extra *p) {
 			if (p != nullptr) {
 				pcre_free_study(p);
