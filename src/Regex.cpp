@@ -255,6 +255,45 @@ String Regex::sub(const String& repl, const String& s, int count, int options) {
 	return out;
 }
 
+Array<String> Regex::split(const String& s, int count, int options) {
+	precompile(options);
+
+	Array<String> out;
+	String search_str = s;
+	Match m;
+	MatchPos pos;
+
+	int n = count;
+	if (n <= 0) {
+		n = 1;
+	}
+	for(int i = 0; i < n; i++) {
+		m = search(search_str, options);
+		if (!m) {
+			break;
+		}
+
+		pos = m.span();
+		if (pos.start == 0 && pos.end >= search_str.len()) {
+			break;
+		}
+		out.append(search_str.slice(0, pos.start));
+		search_str = search_str.slice(pos.end, search_str.len());
+
+		// if regex has subgroups, include them in the resulting array
+		if (m.lastindex() > 0) {
+			out.extend(m.groups());
+		}
+
+		if (count <= 0) {
+			// never exit the loop
+			n++;
+		}
+	}
+	out.append(search_str);
+	return out;
+}
+
 void Match::prepare_(const String& subj, const pcre *re, const pcre_extra *sd) {
 	// prepare for execution; set ovector, copy nametable
 

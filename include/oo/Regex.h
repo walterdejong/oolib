@@ -170,6 +170,7 @@ public:
 	Match search(const String&, int options=0);
 	Array<Array<String> > findall(const String&, int options=0);
 	String sub(const String&, const String&, int count=0, int options=0);
+	Array<String> split(const String&, int count=0, int options=0);
 
 	static const char *errmsg[];
 	static const char *strerror(int);

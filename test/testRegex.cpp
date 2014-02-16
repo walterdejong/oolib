@@ -162,6 +162,21 @@ int main(void) {
 	print("re.sub(): %q", &s);
 	print();
 
+	re = R"(\W+)";
+	a = re.split("Words, words, words.");
+	print("re.split(): %q", &a);
+	a = re.split("Words# words# words.", 1);
+	print("re.split(): %q", &a);
+	// test with subgroups
+	re = R"((\W+))";
+	a = re.split("#Words##words##words#");
+	print("re.split(): %q", &a);
+	// this should give ["0", "3", "9"]
+	re = R"([a-f]+)";
+	a = re.split("0a3B9", 0, Regex::IGNORECASE);
+	print("re.split(): %q", &a);
+	print();
+
 /*
 	// force an error (invalid option bits)
 	re.match("the ninja turtle jumped over the angry pig", 18762);
