@@ -361,7 +361,6 @@ Dict<String> Match::groupdict(void) const {
 		// after that is the name
 		char *name = nametable + 2;
 
-		// FIXME use host/network order
 		int num = (nametable[0] << 8) | nametable[1];
 		if (num < 0 || num > ovecsize_) {
 			throw RuntimeError("illegal value for regex group number");
