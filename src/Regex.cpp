@@ -164,10 +164,10 @@ Match Regex::search(const String& s, int options) {
 	return m;
 }
 
-Array<String> Regex::findall(const String& s, int options) {
+Array<Array<String> > Regex::findall(const String& s, int options) {
 	precompile(options);
 
-	Array<String> arr;
+	Array<Array<String> > out;
 
 	int capcount = 0;
 	if (pcre_fullinfo(re_.get(), study_.get(), PCRE_INFO_CAPTURECOUNT, &capcount) < 0) {
@@ -187,9 +187,11 @@ Array<String> Regex::findall(const String& s, int options) {
 	// execute the regex match
 
 	while(offset < subject_len) {
+		Array<String> arr;
+
 		int matches = pcre_exec(re_.get(), study_.get(), subject, subject_len, offset, 0, ovector, capcount * 3);
 		if (matches == PCRE_ERROR_NOMATCH) {
-			return arr;
+			return out;
 		}
 		if (matches <= 0) {
 			throw RuntimeError(Regex::strerror(matches));
@@ -202,7 +204,7 @@ Array<String> Regex::findall(const String& s, int options) {
 			throw RuntimeError("error extracting regex results");
 		}
 
-		arr.grow(arr.len() + matches);
+		arr.grow(matches);
 
 		// first match is entire string; skip it
 		int n = 1;
@@ -215,9 +217,11 @@ Array<String> Regex::findall(const String& s, int options) {
 		}
 		pcre_free_substring_list(results);
 
+		out.append(arr);
+
 		offset = ovector[1];
 	}
-	return arr;
+	return out;
 }
 
 void Match::prepare_(const String& subject, const pcre *re, const pcre_extra *sd) {

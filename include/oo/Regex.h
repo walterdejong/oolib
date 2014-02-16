@@ -159,7 +159,7 @@ public:
 	}
 
 	Match search(const String&, int options=0);
-	Array<String> findall(const String&, int options=0);
+	Array<Array<String> > findall(const String&, int options=0);
 
 	static const char *errmsg[];
 	static const char *strerror(int);

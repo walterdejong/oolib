@@ -97,8 +97,10 @@ int main(void) {
 	}
 	print();
 
-	a = re.findall("100 200 300 400 500 600 monkeys");
-	print("re.findall: %q", &a);
+	re = R"((\d+) (\d+))";
+	print("re: %v", &re);
+	Array<Array<String> > aa = re.findall("100 200 300 400 500 600 monkeys");
+	print("re.findall: %q", &aa);
 	print();
 
 	Dict<String> d;
