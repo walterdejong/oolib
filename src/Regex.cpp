@@ -288,7 +288,7 @@ Array<String> Regex::split(const String& s, int count, int options) {
 		}
 
 		pos = m.span();
-		if (pos.start == 0 && pos.end >= search_str.len()) {
+		if (pos.start == 0 && (size_t)pos.end >= search_str.len()) {
 			break;
 		}
 		out.append(search_str.slice(0, pos.start));
@@ -526,6 +526,10 @@ MatchPos Match::span(int group) const {
 	MatchPos pos;
 	pos.start = ovector[group * 2];
 	pos.end = ovector[group * 2 + 1];
+
+	if (pos.start < 0 || pos.end < 0) {
+		throw ValueError("got invalid match position");
+	}
 	return pos;
 }
 
