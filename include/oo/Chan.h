@@ -67,10 +67,11 @@ public:
 	typedef T value_type;
 
 	Chan(size_t n=1) : Base(), Sizeable(),
-		mx_(), not_empty_(), not_full_(), buffer(n) {
+		mx_(), not_empty_(), not_full_(), buffer() {
 		if (n <= 0) {
 			throw ValueError();
 		}
+		buffer.reserve(n);
 	}
 
 	virtual ~Chan() { clear(); }
