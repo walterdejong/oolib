@@ -31,7 +31,7 @@
 
 using namespace oo;
 
-Chan<int> chan(4);	// 4 is channel buffer depth
+Chan<int> chan;	// no channel buffer depth
 
 void thread_func(void) {
 	unsigned int tid = gettid();
@@ -44,7 +44,12 @@ void thread_func(void) {
 			print("[%u] terminating", tid);
 			break;
 		}
-		print("[%u] got value: %d", tid, n);
+		if (n < 1) {
+			// FIXME this demonstrates a bug in Chan
+			print("[%u] got value: %d    <-- BUG", tid, n);
+		} else {
+			print("[%u] got value: %d", tid, n);
+		}
 	}
 	print("[%u] I'm gone", tid);
 }
@@ -56,7 +61,7 @@ int main(void) {
 		go(thread_func);
 	}
 	for(int n = 0; n < num_threads * 3; n++) {
-		print("[0] writing value: %d", n);
+		print("[0] writing value: %d", n+1);
 		chan.put(n);
 	}
 	for(int n = 0; n < num_threads; n++) {
