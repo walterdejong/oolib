@@ -36,7 +36,7 @@ void testfunc(int i) {
 }
 
 int main(void) {
-	Functor f = Functor(testfunc, 1234);
+	Functor f = functor(testfunc, 1234);
 	print("let's test dry-freezed %v f:", &f);
 	f();
 	f();

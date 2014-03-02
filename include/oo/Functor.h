@@ -47,9 +47,14 @@ public:
 
 	Functor(const Functor& f) : Base(), f_(f.f_) { }
 
+/*
+	This constructor is evil; it causes very weird miscompilations
+	because it is too generic and erroneously matches many contructs
+
 	// varargs constructor binds the function+arguments to f_
 	template <typename... Tpack>
 	Functor(Tpack&&... p) : Base(), f_(std::bind(std::forward<Tpack>(p)...)) { }
+*/
 
 	Functor(const std::function<void()>& f) : Base(), f_(f) { }
 
@@ -100,6 +105,12 @@ private:
 inline std::ostream& operator<<(std::ostream& os, const Functor& f) {
 	os << f.str();
 	return os;
+}
+
+// make a functor from function + argument list
+template <typename... Tpack>
+Functor functor(Tpack&&... args) {
+	return Functor(std::bind(std::forward<Tpack>(args)...));
 }
 
 }	// namespace
