@@ -40,7 +40,23 @@ public:
 	virtual std::string str(void) const { return repr(); }
 
 	virtual bool operator!(void) const = 0;
+
+//	friend std::ostream& operator<<(std::ostream&, const __classname__&);
 };
+
+/*
+	You should always implement this
+	Classes like Array and Dict depend on it
+
+	Now wouldn't it be great if it were possible to write a specialized template
+	for this, that would work for any class T derived from Base?
+
+// used for printing
+std::ostream& operator<<(std::ostream& os, const __classname__& t) {
+	os << t.str();
+	return os;
+}
+*/
 
 /*
 	an object is deleted by swapping it with an empty instance
