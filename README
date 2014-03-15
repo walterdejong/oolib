@@ -15,3 +15,28 @@ want to play around with it, check out the test codes.
 
 oolib is licensed under the BSD 2-clause license, also known as the
 Simplified BSD License.
+
+
+### Building & Installing
+
+```bash
+# build src
+$ cd src/
+$ sudo make install
+# uninstalling
+$ sudo make uninstall
+```
+
+### Running Tests
+
+On OSX: install pcre.h ($ brew install pcre)
+
+```bash
+# build src and test
+$ cd src/
+$ make test
+$ cd ../test
+# run test
+$ ./textXX
+```
+
