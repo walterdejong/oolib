@@ -96,8 +96,8 @@ install: $(TARGETS)
 	$(INSTALL) -c -v -g 0 -m 0755 -o root liboo.so $(INSTALLDIR)/lib
 	$(INSTALL) -c -v -g 0 -m 0644 -o root liboo.a $(INSTALLDIR)/lib
 	$(INSTALL) -d -g 0 -m 0755 -o root $(INSTALLDIR)/include/oo
-	$(INSTALL) -c -v -g 0 -m 0644 -o root $(HEADERS) $(INSTALLDIR)/include/oo
-	$(INSTALL) -c -v -g 0 -m 0644 -o root $(INCLUDE)/oolib $(INSTALLDIR)/include
+	$(INSTALL) -c -v -g 0 -m 0644 -o root $(HEADERS)/oo/* $(INSTALLDIR)/include/oo
+	$(INSTALL) -c -v -g 0 -m 0644 -o root $(HEADERS)/oolib $(INSTALLDIR)/include
 
 uninstall:
 	( rm $(INSTALLDIR)/include/oo/*.h ; \
