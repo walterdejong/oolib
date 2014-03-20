@@ -7,7 +7,7 @@
 #	- OS X, use DYLD_LIBRARY_PATH
 #
 #	Like so:
-#	$ DYLD_LIBRARY_PATH=../lib ./testxxx
+#	$ DYLD_LIBRARY_PATH=../src ./testxxx
 #
 #
 # Copyright (c) 2014, Walter de Jong
@@ -45,7 +45,7 @@ INCLUDE=../include
 CXXFLAGS=-Wall $(CXX_STANDARD) -gdwarf-2 -fPIC -I$(INCLUDE)
 #CXXFLAGS=-Wall $(CXX_STANDARD) -O3 -fPIC -I$(INCLUDE)
 
-LFLAGS=-L../lib
+LFLAGS=-L../src
 LIBS=-loo
 # Linux sometimes requires librt for the sem_xxx() functions
 #LIBS=-loo -lrt

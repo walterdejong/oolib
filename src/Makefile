@@ -87,8 +87,6 @@ cleanall: clean
 	make -C ../test clean
 
 test: $(TARGETS)
-	mkdir -p ../lib
-	cp $(TARGETS) ../lib
 	make -C ../test
 
 install: $(TARGETS)
