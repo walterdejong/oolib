@@ -1,4 +1,4 @@
-## oolib
+### oolib
 Copyright 2014 by Walter de Jong <walter@heiho.net>
 
 oolib is a library that aims to make developing in C++ easier by providing
@@ -18,7 +18,7 @@ oolib is licensed under the BSD 2-clause license, also known as the
 Simplified BSD License.
 
 
-## Building & Installing
+### Building & Installing
 
 * oolib depends on C++11
 * oolib depends on pcre (install `pcre`, `libpcre` or `libpcre-devel`)
@@ -31,7 +31,7 @@ $ sudo make install
 $ sudo make uninstall
 ```
 
-## Running Tests
+### Running Tests
 
 ```bash
 # build src and test
