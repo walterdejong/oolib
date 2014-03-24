@@ -42,3 +42,47 @@ $ cd ../test
 $ ./testXXX
 ```
 
+
+### Using oolib with your project
+
+This example shows how to compile and link your program with oolib using g++/clang.
+
+Assuming you have oolib installed in: `/usr/local/lib`, and the header files are contained in: `/usr/local/include`. To target an alternate location change -I and -L flags accordingly.
+
+**main.cpp** example 'file'
+```cpp
+#include <oolib>
+using namespace oo;
+int main(){
+  print("I'm using oolib, awesome!");
+  return 0;
+}
+```
+
+**Compiling**
+
+* Replace clang++ with g++ to use that compiler instead.
+
+```bash
+# compile with c++11, error reporting all, dwarf2 debug info (optional)
+$ clang++ -Wall -std=c++11 -gdwarf-2 -fPIC -I/usr/local/include -c main.cpp
+```
+
+**Linking**
+
+```bash
+# link with the installed oolib
+$ clang++ -L/usr/local/lib main.o -o main -loo
+```
+
+**Execute**
+
+```bash
+# add execution permission
+$ chmod +x ./main
+# execute
+$ ./main
+# expected output:
+I'm using oolib, awesome!
+```
+
