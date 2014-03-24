@@ -64,14 +64,14 @@ int main(){
 * Replace clang++ with g++ to use that compiler instead.
 
 ```bash
-# using clang
+# compile with c++11, error reporting all, dwarf2 debug info (optional)
 $ clang++ -Wall -std=c++11 -gdwarf-2 -fPIC -I/usr/local/include -c main.cpp
 ```
 
 **Linking**
 
 ```bash
-# using clang
+# link with the installed oolib
 $ clang++ -L/usr/local/lib main.o -o main -loo
 ```
 
