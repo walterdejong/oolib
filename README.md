@@ -27,6 +27,7 @@ Simplified BSD License.
 ```bash
 # prepare configuration
 $ autoreconf -vfi
+# linux: ./configure LIBS=-lrt
 $ ./configure
 # installing
 $ sudo make install
