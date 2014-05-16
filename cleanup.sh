@@ -8,6 +8,11 @@ while true; do
 	esac
 done
 
+cd ./test/
+make clean
+cd ../
+make clean
+
 # dirs
 rm -rf autom4te.cache/
 rm -rf aux-dist/
@@ -16,8 +21,16 @@ rm -rf src/.deps
 rm -rf src/.libs
 rm -f src/*.lo
 rm -f src/*.la
+rm -rf test/.deps
+rm -rf test/.libs
+rm -f test/*.lo
+rm -f test/*.la
+
 
 # files
+if [ -f libtool ]; then
+	rm libtool
+fi
 if [ -f include/Makefile ]; then
 	rm include/Makefile
 fi
@@ -29,6 +42,12 @@ if [ -f src/Makefile ]; then
 fi
 if [ -f src/Makefile.in ]; then
 	rm src/Makefile.in
+fi
+if [ -f test/Makefile ]; then
+	rm test/Makefile
+fi
+if [ -f test/Makefile.in ]; then
+	rm test/Makefile.in
 fi
 if [ -f aclocal.m4 ]; then
 	rm aclocal.m4
