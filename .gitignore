@@ -28,3 +28,5 @@ Makefile.in
 libtool
 src/.deps
 src/.libs
+test/.deps
+test/.libs
