@@ -21,6 +21,7 @@ Simplified BSD License.
 ### Building & Installing
 
 * oolib depends on autoconf
+* oolib depends on libtool
 * oolib depends on C++11
 * oolib depends on pcre (install `pcre`, `libpcre` or `libpcre-devel`)
 
