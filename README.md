@@ -32,10 +32,16 @@ $ autoreconf -vfi
 $ ./configure
 # linux: ./configure LIBS=-lrt
 # use clang: ./configure CXX=clang++
+# set pcre location: ./configure --with-pcre=/usr/local
 # installing
 $ sudo make install
 # uninstalling
 $ sudo make uninstall
+```
+
+```bash
+# alternate pcre location
+$ ./configure --with-pcre=/usr/local
 ```
 
 ### Running Tests
