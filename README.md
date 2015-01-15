@@ -28,8 +28,10 @@ Simplified BSD License.
 ```bash
 # prepare configuration
 $ autoreconf -vfi
-# linux: ./configure LIBS=-lrt
+# configuring
 $ ./configure
+# linux: ./configure LIBS=-lrt
+# use clang: ./configure CXX=clang++
 # installing
 $ sudo make install
 # uninstalling

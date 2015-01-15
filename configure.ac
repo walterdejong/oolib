@@ -17,11 +17,20 @@ LT_INIT([dlopen shared])
 
 AC_CONFIG_FILES([Makefile include/Makefile src/Makefile test/Makefile])
 
+dnl specific pcre lib path
+AC_ARG_WITH(pcre,
+  [AC_HELP_STRING([--with-pcre=DIR], [use a specific pcre lib])],
+  [
+    CPPFLAGS="$CPPFLAGS -I$withval/include"
+    LDFLAGS="$LDFLAGS -L$withval/lib"
+    LIBTOOL_LINK_FLAGS="$LIBTOOL_LINK_FLAGS -R$withval/lib"
+  ])
+
 dnl check for pcre header files
 AC_CHECK_HEADERS([pcre.h],
-	[oolib_found_pcre_headers=yes; break;])
+  [oolib_found_pcre_headers=yes; break;])
 AS_IF([test "x$oolib_found_pcre_headers" != "xyes"],
-	[AC_MSG_ERROR([Unable to find the pcre headers])])
+  [AC_MSG_ERROR([Unable to find the pcre headers])])
 
 dnl check for pcre library
 SAVED_LDFLAGS=$LDFLAGS
@@ -34,4 +43,3 @@ AC_LINK_IFELSE(
 LDFLAGS=$SAVED_LDFLAGS
 
 AC_OUTPUT
-
