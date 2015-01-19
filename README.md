@@ -20,24 +20,38 @@ Simplified BSD License.
 
 ### Building & Installing
 
+* oolib depends on autoconf
+* oolib depends on libtool
 * oolib depends on C++11
 * oolib depends on pcre (install `pcre`, `libpcre` or `libpcre-devel`)
 
 ```bash
-# build src
-$ cd src/
+# prepare configuration
+$ autoreconf -vfi
+# configuring
+$ ./configure
+# linux: ./configure LIBS=-lrt
+# use clang: ./configure CXX=clang++
+# set pcre location: ./configure --with-pcre=/usr/local
+# installing
 $ sudo make install
 # uninstalling
 $ sudo make uninstall
 ```
 
+```bash
+# alternate pcre location
+$ ./configure --with-pcre=/usr/local
+```
+
 ### Running Tests
 
+*NOTE: requires oolib to be installed*
+
 ```bash
-# build src and test
-$ cd src/
-$ make test
-$ cd ../test
+# build test
+$ cd test
+$ make testXXX
 # run test
 $ ./testXXX
 ```
@@ -50,6 +64,7 @@ This example shows how to compile and link your program with oolib using g++/cla
 Assuming you have oolib installed in: `/usr/local/lib`, and the header files are contained in: `/usr/local/include`. To target an alternate location change -I and -L flags accordingly.
 
 **main.cpp** example 'file'
+
 ```cpp
 #include <oolib>
 using namespace oo;
@@ -65,14 +80,14 @@ int main(){
 
 ```bash
 # compile with c++11, error reporting all, dwarf2 debug info (optional)
-$ clang++ -Wall -std=c++11 -gdwarf-2 -fPIC -I/usr/local/include -c main.cpp
+$ clang++ -Wall -std=c++11 -gdwarf-2 -fPIC -c main.cpp
 ```
 
 **Linking**
 
 ```bash
 # link with the installed oolib
-$ clang++ -L/usr/local/lib main.o -o main -loo
+$ clang++ main.o -o main -loo
 ```
 
 **Execute**
