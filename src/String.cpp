@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -41,18 +41,15 @@ const size_t kSmallestString = 15;
 String::String(const String& s) {
 	s_len = s.s_len;
 	s_cap = s.s_cap;
-
 	s_data = new char[s_cap];
 	std::memcpy(s_data, s.s_data, s_cap);
 }
 
 String::String(const std::string& s) {
-	s_cap = s.length() + 1;
-
+	s_len = s.length();
+	s_cap = s_len + 1;
 	s_data = new char[s_cap];
 	std::memcpy(s_data, s.c_str(), s_cap);
-
-	s_len = utf8_len(s_data);
 }
 
 String::String(const char *s) {
@@ -62,12 +59,25 @@ String::String(const char *s) {
 		s_data = new char[s_cap];
 		*s_data = 0;
 	} else {
-		s_cap = std::strlen(s) + 1;
-
+		s_len = std::strlen(s);
+		s_cap = s_len + 1;
 		s_data = new char[s_cap];
 		std::memcpy(s_data, s, s_cap);
+	}
+}
 
-		s_len = utf8_len(s_data);
+String::String(const char *s, size_t n) {
+	if (s == nullptr) {
+		s_len = 0;
+		s_cap = kSmallestString;
+		s_data = new char[s_cap];
+		*s_data = 0;
+	} else {
+		s_cap = n + 1;
+		s_data = new char[s_cap];
+		std::strncpy(s_data, s, n);
+		s_data[n] = 0;
+		s_len = std::strlen(s_data);
 	}
 }
 
@@ -82,7 +92,7 @@ String::String(const rune *r) {
 		s_data = nullptr;
 		grow(utf8_encoded_len(r) + 1);
 		utf8_encode(r, s_data, s_cap);
-		s_len = utf8_len(s_data);
+		s_len = std::strlen(s_data);
 	}
 }
 
@@ -93,7 +103,7 @@ String::String(rune code) {
 	s_data = nullptr;
 	grow(utf8_encoded_len(r) + 1);
 	utf8_encode(r, s_data, s_cap);
-	s_len = utf8_len(s_data);
+	s_len = std::strlen(s_data);
 }
 
 void String::grow(size_t n) {
@@ -104,13 +114,14 @@ void String::grow(size_t n) {
 	// round up to next multiple of 16
 	// this helps performance of strings that repeatedly grow
 	// eg. by using operator+=()
-	n = n + 16 - (n % 16);
+	n += 15;
+	n &= ~15;
 
 	char *new_data = new char[n];
 	new_data[0] = 0;
 
 	if (s_data != nullptr) {
-		std::memcpy(new_data, s_data, std::strlen(s_data) + 1);
+		std::memcpy(new_data, s_data, s_len + 1);
 		delete [] s_data;
 	}
 	s_data = new_data;
@@ -123,7 +134,6 @@ rune String::operator[](int idx) const {
 	}
 	if (idx < 0) {
 		idx += s_len;
-
 		if (idx < 0) {
 			throw IndexError();
 		}
@@ -134,10 +144,7 @@ rune String::operator[](int idx) const {
 	if ((size_t)idx == s_len) {
 		return 0;
 	}
-
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-	return tmp[idx];
+	return s_data[idx] & 0xff;
 }
 
 String& String::operator+=(const String& s) {
@@ -145,12 +152,9 @@ String& String::operator+=(const String& s) {
 		return *this;
 	}
 
-	size_t l = std::strlen(s_data);
-	size_t datalen_s = std::strlen(s.s_data) + 1;
-	grow(l + datalen_s);
-	std::memcpy(s_data + l, s.s_data, datalen_s);
-	s_len += s.len();
-
+	grow(s_len + s.s_len + 1);
+	std::memcpy(s_data + s_len, s.s_data, s.s_len + 1);
+	s_len += s.s_len;
 	return *this;
 }
 
@@ -159,16 +163,12 @@ String& String::operator+=(rune code) {
 		return *this;
 	}
 
-	size_t n = utf8_encoded_size(code);
-	size_t l = std::strlen(s_data);
-	grow(l + n + 1);
+	size_t n = utf8_encoded_len(code);
+	grow(s_len + n + 1);
 
 	rune r[2] = { code, 0 };
-
-	utf8_encode(r, s_data + l, n + 1);
-
-	s_len++;
-
+	utf8_encode(r, s_data + s_len, n + 1);
+	s_len += n;
 	return *this;
 }
 
@@ -180,24 +180,27 @@ String& String::operator*=(int n) {
 		return *this;
 	}
 
-	size_t l = std::strlen(s_data);
-	grow(l * n + 1);
+	grow(s_len * n + 1);
 
-	s_len *= n;
-
-	size_t data_len = l;
+	size_t data_len = s_len;
 
 	while(n > 1) {
-		std::memcpy(s_data + data_len, s_data, l);
-		data_len += l;
+		std::memcpy(s_data + data_len, s_data, s_len);
+		data_len += s_len;
 		n--;
 	}
-	s_data[data_len] = 0;
+	s_len = data_len;
+	s_data[s_len] = 0;
 	return *this;
 }
 
 // default arguments start=0, end=0
 int String::find(rune r, int start, int end) const {
+	if (r >= 0x80) {
+		String s(r);
+		return find(s, start, end);
+	}
+
 	if (start < 0) {
 		start += s_len;
 
@@ -219,23 +222,21 @@ int String::find(rune r, int start, int end) const {
 		return -1;
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	int pos;
-	for(pos = start; (size_t)pos < s_len; pos++) {
-		if (tmp[pos] == r) {
-			break;
+	for(int pos = start; (size_t)pos <= end; pos++) {
+		if (s_data[pos] == r) {
+			return pos;
 		}
 	}
-	if ((size_t)pos >= s_len) {
-		pos = -1;
-	}
-	return pos;
+	return -1;
 }
 
 // default arguments start=0, end=0
 int String::rfind(rune r, int start, int end) const {
+	if (r >= 0x80) {
+		String s(r);
+		return rfind(s, start, end);
+	}
+
 	if (start < 0) {
 		start += s_len;
 
@@ -257,19 +258,12 @@ int String::rfind(rune r, int start, int end) const {
 		return -1;
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	int pos;
-	for(pos = end-1; pos >= start; pos--) {
-		if (tmp[pos] == r) {
-			break;
+	for(int pos = end-1; pos >= start; pos--) {
+		if (s_data[pos] == r) {
+			return pos;
 		}
 	}
-	if (pos < start) {
-		pos = -1;
-	}
-	return pos;
+	return -1;
 }
 
 // default arguments start=0, end=0
@@ -299,22 +293,12 @@ int String::find(const String& s, int start, int end) const {
 		return -1;
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	rune tmp2[s.s_len + 1];
-	utf8_decode(s.s_data, tmp2, s.s_len + 1);
-
-	int pos;
-	for(pos = start; pos < end; pos++) {
-		if (!std::memcmp(&tmp[pos], tmp2, sizeof(rune) * s.s_len)) {
-			break;
+	for(int pos = start; pos <= end; pos++) {
+		if (!std::strncmp(s_data + pos, s.s_data, s.s_len)) {
+			return pos;
 		}
 	}
-	if (pos > end) {
-		pos = -1;
-	}
-	return pos;
+	return -1;
 }
 
 // default arguments start=0, end=0
@@ -344,138 +328,88 @@ int String::rfind(const String& s, int start, int end) const {
 		return -1;
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	rune tmp2[s.s_len + 1];
-	utf8_decode(s.s_data, tmp2, s.s_len + 1);
-
-	int pos;
-	for(pos = end; pos >= start; pos--) {
-		if (!std::memcmp(&tmp[pos], tmp2, sizeof(rune) * s.s_len)) {
-			break;
+	for(int pos = end; pos >= start; pos--) {
+		if (!std::strncmp(s_data + pos, s.s_data, s.s_len)) {
+			return pos;
 		}
 	}
-	if (pos < start) {
-		pos = -1;
-	}
-	return pos;
+	return -1;
 }
 
 // default argument is a default strippin charset
 String String::strip(const String& charset) const {
 	if (!s_len) {
-		return *this;
+		return String(*this);
 	}
-
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	rune tmp_charset[charset.len() + 1];
-	utf8_decode(charset.s_data, tmp_charset, charset.len() + 1);
-
-	bool found;
-
-	// rstrip
-	int l = s_len - 1;
-
-	while(l >= 0) {
-		found = false;
-		for(size_t n = 0; n < charset.len(); n++) {
-			if (tmp_charset[n] == tmp[l]) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			break;
-		}
-		tmp[l--] = 0;
-	}
-	l++;
 
 	// lstrip
-	while(l > 0) {
-		found = false;
-		for(size_t n = 0; n < charset.len(); n++) {
-			if (tmp_charset[n] == tmp[0]) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
+	char *p = s_data;
+	while(*p) {
+		if (charset.find(*p) == -1) {
 			break;
 		}
-		std::memmove(tmp, &tmp[1], l * sizeof(rune));
-		l--;
+		p++;
 	}
-	return String(tmp);
+	if (!*p) {
+		return String();
+	}
+
+	String s(p);
+
+	// rstrip
+	int l = s.len() - 1;
+	while(l >= 0) {
+		if (charset.find(s.s_data[l]) == -1) {
+			break;
+		}
+		s.s_data[l--] = 0;
+		s.s_len--;
+	}
+	if (!s) {
+		return String();
+	}
+	return s;
 }
 
 String String::lstrip(const String& charset) const {
 	if (!s_len) {
-		return *this;
+		return String(*this);
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	rune tmp_charset[charset.len() + 1];
-	utf8_decode(charset.s_data, tmp_charset, charset.len() + 1);
-
-	bool found;
-
-	size_t l = s_len;
-	while(l > 0) {
-		found = false;
-		for(size_t n = 0; n < charset.len(); n++) {
-			if (tmp_charset[n] == tmp[0]) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
+	// lstrip
+	char *p = s_data;
+	while(*p) {
+		if (charset.find(*p) == -1) {
 			break;
 		}
-		std::memmove(tmp, &tmp[1], l * sizeof(rune));
-		l--;
+		p++;
 	}
-	return String(tmp);
+	if (!*p) {
+		return String();
+	}
+	return String(p);
 }
 
 String String::rstrip(const String& charset) const {
-	if (!s_len) {
-		return *this;
-	}
+	String s(*this);
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-
-	rune tmp_charset[charset.len() + 1];
-	utf8_decode(charset.s_data, tmp_charset, charset.len() + 1);
-
-	bool found;
-
-	int l = s_len - 1;
-
+	// rstrip
+	int l = s.len() - 1;
 	while(l >= 0) {
-		found = false;
-		for(size_t n = 0; n < charset.len(); n++) {
-			if (tmp_charset[n] == tmp[l]) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
+		if (charset.find(s.s_data[l]) == -1) {
 			break;
 		}
-		tmp[l--] = 0;
+		s.s_data[l--] = 0;
+		s.s_len--;
 	}
-	return String(tmp);
+	if (!s) {
+		return String();
+	}
+	return s;
 }
 
 String String::upper(void) const {
-	String s = *this;
+	String s(*this);
 
 	char *p = s.s_data;
 	while(*p) {
@@ -488,7 +422,7 @@ String String::upper(void) const {
 }
 
 String String::lower(void) const {
-	String s = *this;
+	String s(*this);
 
 	char *p = s.s_data;
 	while(*p) {
@@ -501,7 +435,7 @@ String String::lower(void) const {
 }
 
 String String::capitalize(void) const {
-	String s = *this;
+	String s(*this);
 
 	char *p = s.s_data;
 	if (*p >= 'a' && *p <= 'z') {
@@ -511,7 +445,7 @@ String String::capitalize(void) const {
 }
 
 String String::capwords(void) const {
-	String s = *this;
+	String s(*this);
 
 	char *p = s.s_data;
 	bool cap_next = true;
@@ -555,10 +489,8 @@ String String::slice(int idx1, int idx2) const {
 	if (idx1 >= idx2) {
 		return String();
 	}
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
-	tmp[idx2] = 0;
-	return String(&tmp[idx1]);
+
+	return String(s_data + idx1, idx2 - idx1);
 }
 
 // default argument n == -1 (replace all)
@@ -595,77 +527,65 @@ Array<String> String::split(rune sep) const {
 		return Array<String>();
 	}
 
-	rune tmp[s_len + 1];
-	utf8_decode(s_data, tmp, s_len + 1);
+	const String search(sep);
 
 	Array<String> a;
 
-	unsigned int start = 0, end;
-	for(end = 0; end < s_len; end++) {
-		if (tmp[end] == sep) {
-			// copy word
-			tmp[end] = 0;
-			a.append(String(&tmp[start]));
-
-			// skip to next word
-			end++;
-			while(end < s_len && tmp[end] == sep) {
-				end++;
-			}
-			start = end;
-			continue;
+	char *p = s_data;
+	int pos, start = 0;
+	while(true) {
+		pos = find(search, start);
+		if (pos == -1) {
+			a.append(String(p));
+			break;
 		}
-	}
-	// last word
-	if (end != start) {
-		tmp[end] = 0;
-		a.append(String(&tmp[start]));
+
+		a.append(String(p, pos - start));
+
+		start = pos + search.len();
+		p = s_data + start;
 	}
 	return a;
 }
 
 // default argument sep = ' '
 String String::join(const Array<String>& a, rune sep) const {
+	if (sep >= 0x80) {
+		return join(a, String(sep));
+	}
+
 	if (!a.len()) {
 		return String();
 	}
 
 	// first calculate total size
-
-	size_t rune_size = utf8_encoded_size(sep);
 	size_t total = 0;
-	const char *p;
-
 	for(size_t i = 0; i < a.len(); i++) {
-		p = a[i].c_str();
-		if (p == nullptr) {
-			throw ReferenceError();
-		}
-		total += std::strlen(p) + rune_size;
+		total += a[i].len() + 1;
 	}
-	total -= rune_size;
+	total--;
 
 	// make the joined string
 	String s;
 	s.grow(total + 1);
-	s.s_data[0] = 0;
+
+	size_t l;
 
 	if (a[0].s_data != nullptr) {
 		std::strcpy(s.s_data, a[0].s_data);
+		l = a[0].len();
+	} else {
+		s.s_data[0] = 0;
+		l = 0;
 	}
-
-	rune r[2] = { sep, 0 };
-	char rs[5];
-	utf8_encode(r, rs, sizeof(rs));
 
 	for(size_t i = 1; i < a.len(); i++) {
-		std::strcat(s.s_data, rs);
-
-		if (a[i].s_data) {
-			std::strcat(s.s_data, a[i].s_data);
-		}
+		s.s_data[l++] = sep;
+		std::strcpy(s.s_data + l, a[i].s_data);
+		l += a[i].len();
 	}
-	s.s_len = utf8_len(s.s_data);
+	s.s_data[l] = 0;
+	s.s_len = l;
 	return s;
 }
 
@@ -675,175 +595,32 @@ String String::join(const Array<String>& a, const String& sep) const {
 	}
 
 	// first calculate total size
+	const String add(sep);
 
-	size_t sep_size = std::strlen(sep.c_str());
 	size_t total = 0;
-
 	for(size_t i = 0; i < a.len(); i++) {
-		total += std::strlen(a[i].c_str()) + sep_size;
+		total += a[i].len() + add.len();
 	}
-	total -= sep_size;
+	total -= add.len();
 
 	// make the joined string
 	String s;
 	s.grow(total + 1);
-	s.s_data[0] = 0;
 
-	if (a[0].s_data) {
+	if (a[0].s_data != nullptr) {
 		std::strcpy(s.s_data, a[0].s_data);
+	} else {
+		s.s_data[0] = 0;
 	}
 	for(size_t i = 1; i < a.len(); i++) {
-		std::strcat(s.s_data, sep.s_data);
-		std::strcat(s.s_data, a[i].s_data);
+		std::strcat(s.s_data, add.s_data);
+
+		if (a[i].s_data != nullptr) {
+			std::strcat(s.s_data, a[i].s_data);
+		}
 	}
-	s.s_len = utf8_len(s.s_data);
+	s.s_len = std::strlen(s.s_data);
 	return s;
-}
-
-
-// returns # of characters in utf-8 string (excluding nul terminator)
-size_t String::utf8_len(const char *s) {
-	if (s == nullptr) {
-		throw ReferenceError();
-	}
-	if (!*s) {
-		return 0;
-	}
-
-	size_t n = 0;
-
-	while(*s) {
-		if ((*s & 0x80) == 0x80) {				// negative value
-			if ((*s & 0xe0) == 0xc0) {			// 1 more byte
-				s++;
-				if ((*s & 0xc0) != 0x80) {
-					throw StringEncodingError();
-				}
-				s++;
-				n++;
-			} else {
-				if ((*s & 0xf0) == 0xe0) {		// 2 more bytes
-					s++;
-					if ((*s & 0xc0) != 0x80) {
-						throw StringEncodingError();
-					}
-					s++;
-					if ((*s & 0xc0) != 0x80) {
-						throw StringEncodingError();
-					}
-					s++;
-					n++;
-				} else {
-					if ((*s & 0xf8) == 0xf0) {	// 3 more bytes
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						s++;
-						n++;
-					} else {
-						throw StringEncodingError();
-					}
-				}
-			}
-		} else {
-			s++;
-			n++;
-		}
-	}
-	return n;
-}
-
-void String::utf8_decode(const char *s, rune *r, size_t n) {
-	if (s == nullptr || r == nullptr) {
-		throw ReferenceError();
-	}
-	if (!n) {
-		throw ValueError();
-	}
-
-	rune code;
-	while(*s && n > 0) {
-		if ((*s & 0x80) == 0x80) {				// negative value
-			if ((*s & 0xe0) == 0xc0) {			// 1 more byte
-				code = (*s & 0x1f) << 6;
-
-				s++;
-				if ((*s & 0xc0) != 0x80) {
-					throw StringEncodingError();
-				}
-				code |= (*s & 0x3f);
-				s++;
-
-				*r = code;
-				r++;
-				n--;
-			} else {
-				if ((*s & 0xf0) == 0xe0) {		// 2 more bytes
-					code = (*s & 0xf) << 12;
-
-					s++;
-					if ((*s & 0xc0) != 0x80) {
-						throw StringEncodingError();
-					}
-					code |= ((*s & 0x3f) << 6);
-
-					s++;
-					if ((*s & 0xc0) != 0x80) {
-						throw StringEncodingError();
-					}
-					code |= (*s & 0x3f);
-					s++;
-
-					*r = code;
-					r++;
-					n--;
-				} else {
-					if ((*s & 0xf8) == 0xf0) {	// 3 more bytes
-						code = (*s & 7) << 18;
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						code |= ((*s & 0x3f) << 12);
-
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						code |= ((*s & 0x3f) << 6);
-
-						s++;
-						if ((*s & 0xc0) != 0x80) {
-							throw StringEncodingError();
-						}
-						code |= (*s & 0x3f);
-						s++;
-
-						*r = code;
-						r++;
-						n--;
-					} else {
-						throw StringEncodingError();
-					}
-				}
-			}
-		} else {
-			*r = *s & 0x7f;
-			r++;
-			s++;
-			n--;
-		}
-	}
-	*r = 0;
 }
 
 void String::utf8_encode(const rune *r, char *s, size_t n) {
@@ -903,7 +680,7 @@ void String::utf8_encode(const rune *r, char *s, size_t n) {
 	*s = 0;
 }
 
-size_t String::utf8_encoded_size(rune code) {
+size_t String::utf8_encoded_len(rune code) {
 	if (code < 0x80) {
 		return 1;
 	}
@@ -931,7 +708,7 @@ size_t String::utf8_encoded_len(const rune *r) {
 	size_t l = 0;
 
 	while(*r) {
-		l += utf8_encoded_size(*r);
+		l += utf8_encoded_len(*r);
 		r++;
 	}
 	return l;

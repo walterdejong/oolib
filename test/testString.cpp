@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -41,8 +41,8 @@ int main(void) {
 	s1 = s2;
 	print("s1 = s2;");
 	print("s1: %q  len: %zu  cap: %zu", &s1, len(s1), cap(s1));
-	print("s1[-1]: '%r'", s1[-1]);
-	print("s1[3]:  '%r'", s1[3]);
+	print("s1[-1]: 0x%02x", s1[-1]);
+	print("s1[3]:  0x%02x", s1[3]);
 
 	s1 = s2;
 	print("s1: %q  len: %zu  cap: %zu", &s1, len(s1), cap(s1));
@@ -88,25 +88,25 @@ int main(void) {
 	print("rfind(cab, -4, 28): %d", s1.rfind("cab", -4, 28));
 	print("rfind(cab, -4, 29): %d", s1.rfind("cab", -4, 29));
 
-	s1 = "\t  strip testje ...	";
+	s1 = "\t  strip tests ...	";
 	s2 = s1.lstrip();
-	print("s2: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	print("s2: lstrip(): %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 
 	s2 = s1.rstrip();
-	print("s2: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	print("s2: rstrip(): %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 
 	s2 = s1.strip();
-	print("s2: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	print("s2: strip(): %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 
 	s1 = "the quick brown 狐 jumps over the lazy 犬";
 	s2 = s1.upper();
-	print("s2: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	print("s2: upper(): %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 	s2 = s1.capwords();
-	print("s2: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
+	print("s2: capwords(): %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 
 	s2 = s1.slice(4, 9);
 	print("s2: slice: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
-	s2 = s1.slice(-6, len(s1));
+	s2 = s1.slice(-8, len(s1));
 	print("s2: slice: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));
 	s2 = s1.slice(-100, 200);
 	print("s2: slice: %q  len: %zu  cap: %zu", &s2, len(s2), cap(s2));

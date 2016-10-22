@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -62,6 +62,7 @@ public:
 	String(const String&);
 	String(const std::string&);
 	String(const char *);
+	String(const char *, size_t);
 	String(const rune *);
 	String(rune);
 
@@ -177,10 +178,8 @@ private:
 	size_t s_len, s_cap;
 	char *s_data;
 
-	static size_t utf8_len(const char *);		// returns # of characters in utf-8 string (excluding nul terminator)
-	static void utf8_decode(const char *, rune *, size_t);
 	static void utf8_encode(const rune *, char *, size_t);
-	static size_t utf8_encoded_size(rune);
+	static size_t utf8_encoded_len(rune);
 	static size_t utf8_encoded_len(const rune *);
 
 	friend std::ostream& operator<<(std::ostream&, const String&);
