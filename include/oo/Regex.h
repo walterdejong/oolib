@@ -8,13 +8,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -61,25 +61,41 @@ public:
 	Match(const Match& m) : Base(), ovector_(m.ovector_), ovecsize_(m.ovecsize_), matches_(m.matches_),
 		nametable_(m.nametable_), namecount_(m.namecount_), namesize_(m.namesize_), subject_(m.subject_) { }
 
-	Match(Match&& m) {
-		swap(*this, m);
+	Match(Match&& m) : Base() {
+		ovector_ = std::move(m.ovector_);
+		ovecsize_ = m.ovecsize_;
+		matches_ = m.matches_;
+		nametable_ = std::move(m.nametable_);
+		namecount_ = m.namecount_;
+		namesize_ = m.namesize_;
+		subject_ = std::move(m.subject_);
 	}
 
 //	virtual ~Match() { }
 
-	Match& operator=(Match copy) {
-		swap(*this, copy);
+	Match& operator=(const Match& m) {
+		if (this == &m) {
+			return *this;
+		}
+		ovector_ = m.ovector_;
+		ovecsize_ = m.ovecsize_;
+		matches_ = m.matches_;
+		nametable_ = m.nametable_;
+		namecount_ = m.namecount_;
+		namesize_ = m.namesize_;
+		subject_ = m.subject_;
 		return *this;
 	}
 
-	static void swap(Match& a, Match& b) {
-		std::swap(a.ovector_, b.ovector_);
-		std::swap(a.ovecsize_, b.ovecsize_);
-		std::swap(a.matches_, b.matches_);
-		std::swap(a.nametable_, b.nametable_);
-		std::swap(a.namecount_, b.namecount_);
-		std::swap(a.namesize_, b.namesize_);
-		std::swap(a.subject_, b.subject_);
+	Match& operator=(Match&& m) {
+		ovector_ = std::move(m.ovector_);
+		ovecsize_ = m.ovecsize_;
+		matches_ = m.matches_;
+		nametable_ = std::move(m.nametable_);
+		namecount_ = m.namecount_;
+		namesize_ = m.namesize_;
+		subject_ = std::move(m.subject_);
+		return *this;
 	}
 
 	std::string repr(void) const { return "<Match>"; }
@@ -136,27 +152,41 @@ public:
 
 	Regex(const Regex& r) : Base(), pattern_(r.pattern_), options_(0), re_(r.re_), study_(r.study_) { }
 
-	Regex(Regex&& r) : Regex() {
-		swap(*this, r);
+	Regex(Regex&& r) : Base() {
+		pattern_ = std::move(r.pattern_);
+		options_ = r.options_;
+		re_ = std::move(r.re_);
+		study_ = std::move(r.study_);
 	}
 
 //	virtual ~Regex() { }
 
-	Regex& operator=(Regex copy) {
-		swap(*this, copy);
+	Regex& operator=(const Regex& r) {
+		if (this == &r) {
+			return *this;
+		}
+		pattern_ = r.pattern_;
+		options_ = r.options_;
+		re_ = r.re_;
+		study_ = r.study_;
+		return *this;
+	}
+
+	Regex& operator=(Regex&& r) {
+		pattern_ = std::move(r.pattern_);
+		options_ = r.options_;
+		re_ = std::move(r.re_);
+		study_ = std::move(r.study_);
 		return *this;
 	}
 
 	Regex& operator=(const String& s) {
 		Regex r(s);
-		swap(*this, r);
+		pattern_ = std::move(r.pattern_);
+		options_ = r.options_;
+		re_ = std::move(r.re_);
+		study_ = std::move(r.study_);
 		return *this;
-	}
-
-	static void swap(Regex& a, Regex& b) {
-		std::swap(a.pattern_, b.pattern_);
-		std::swap(a.re_, b.re_);
-		std::swap(a.study_, b.study_);
 	}
 
 	std::string repr(void) const;
