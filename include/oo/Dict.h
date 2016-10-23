@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -53,31 +53,27 @@ public:
 	Dict(const Dict& d) : Base(), Sizeable(), m_(std::map<String, T>(d.m_)) { }
 
 	Dict(Dict<T>&& d) : Dict() {
-		swap(*this, d);
+		m_ = d.m_;
 	}
 
 //	~Dict() { }
 
-	Dict<T>& operator=(Dict<T> d) {
-		swap(*this, d);
+	Dict<T>& operator=(const Dict<T>& d) {
+		if (this == &d) {
+			return *this;
+		}
+		m_ = d.m_;
 		return *this;
 	}
 
-	static void swap(Dict<T>& a, Dict<T>& b) {
-		std::swap(a.m_, b.m_);
+	Dict<T>& operator=(Dict<T>&& d) {
+		m_ = std::move(d.m_);
+		return *this;
 	}
 
 	std::string repr(void) const;
 
-	// the swap trick frees all memory in the map
-	static void force_free(std::map<String, T>& m) {
-		std::map<String, T> tmp;
-		m.swap(tmp);
-		// stack unwinds, deleting tmp
-	}
-
 	void clear(void) {
-		force_free(m_);
 		m_.clear();
 	}
 
