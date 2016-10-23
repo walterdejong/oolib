@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -74,20 +74,31 @@ public:
 		buffer.reserve(n);
 	}
 
+	Chan(const Chan&) = delete;
+
+	Chan(Chan&& c) : Base(), Sizeable() {
+		mx_ = std::move(c.mx_);
+		not_empty_ = std::move(c.not_empty_);
+		not_full_ = std::move(c.not_full_);
+		buffer = std::move(c.buffer);
+	}
+
 	virtual ~Chan() { clear(); }
+
+	Chan& operator=(const Chan&) = delete;
+
+	Chan& operator=(Chan&& c) {
+		mx_ = std::move(c.mx_);
+		not_empty_ = std::move(c.not_empty_);
+		not_full_ = std::move(c.not_full_);
+		buffer = std::move(c.buffer);
+		return *this;
+	}
 
 	std::string repr(void) const { return "<Chan>"; }
 
-	// the swap trick frees all memory in the vector
-	static void force_free(std::vector<T>& v) {
-		std::vector<T> tmp;
-		v.swap(tmp);
-		// stack unwinds, deleting tmp
-	}
-
 	void clear(void) {
 		// warning: it clears whether the mutex is locked or not
-		force_free(buffer);
 		buffer.clear();
 	}
 
