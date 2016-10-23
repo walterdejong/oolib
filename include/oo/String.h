@@ -66,8 +66,13 @@ public:
 	String(const rune *);
 	String(rune);
 
-	String(String&& s) : String() {
-		swap(*this, s);
+	String(String&& s) {
+		s_data = s.s_data;
+		s_cap = s.s_cap;
+		s_len = s.s_len;
+
+		s.s_data = nullptr;
+		s.s_cap = s.s_len = 0;
 	}
 
 	~String() {
@@ -76,8 +81,29 @@ public:
 		}
 	}
 
-	String& operator=(String copy) {
-		swap(*this, copy);
+	String& operator=(const String& s) {
+		if (this == &s) {
+			return *this;
+		}
+
+		if (s_data != nullptr) {
+			delete [] s_data;
+		}
+
+		s_len = s.s_len;
+		s_cap = s.s_cap;
+		s_data = new char[s_cap];
+		std::memcpy(s_data, s.s_data, s_cap);
+		return *this;
+	}
+
+	String& operator=(String&& s) {
+		s_data = s.s_data;
+		s_cap = s.s_cap;
+		s_len = s.s_len;
+
+		s.s_data = nullptr;
+		s.s_cap = s.s_len = 0;
 		return *this;
 	}
 
