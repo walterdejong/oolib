@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -63,7 +63,7 @@ public:
 	List(const List<T>& a) : Base(), Sequence<T>(), l_(a.l_) { }
 
 	List(List<T>&& a) : List() {
-		swap(*this, a);
+		l_ = a.l_;
 	}
 
 	List(const Array<T>&);	// convert array to list
@@ -76,26 +76,22 @@ public:
 
 //	~List() { }
 
-	List<T>& operator=(List<T> a) {
-		swap(*this, a);
+	List<T>& operator=(const List<T>& a) {
+		if (this == &a) {
+			return *this;
+		}
+		l_ = a.l_;
 		return *this;
 	}
 
-	static void swap(List<T>& a, List<T>& b) {
-		std::swap(a.l_, b.l_);
+	List<T>& operator=(List<T>&& a) {
+		l_ = std::move(a.l_);
+		return *this;
 	}
 
 	std::string repr(void) const;
 
-	// the swap trick frees all memory in the list
-	static void force_free(std::list<T>& l) {
-		std::list<T> tmp;
-		l.swap(tmp);
-		// stack unwinds, deleting tmp
-	}
-
 	void clear(void) {
-		force_free(l_);
 		l_.clear();
 	}
 
