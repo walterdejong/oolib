@@ -9,13 +9,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -59,23 +59,27 @@ public:
 	Functor(const std::function<void()>& f) : Base(), f_(f) { }
 
 	Functor(Functor&& f) : Functor() {
-		swap(*this, f);
+		f_ = std::move(f.f_);
 	}
 
 //	~Functor() { }
 
-	Functor& operator=(Functor f) {
-		swap(*this, f);
+	Functor& operator=(const Functor& f) {
+		if (this == &f) {
+			return *this;
+		}
+		f_ = f.f_;
 		return *this;
 	}
 
-	Functor& operator=(std::function<void()> f) {
-		std::swap(f_, f);
+	Functor& operator=(Functor&& f) {
+		f_ = std::move(f.f_);
 		return *this;
 	}
 
-	static void swap(Functor& a, Functor& b) {
-		std::swap(a.f_, b.f_);
+	Functor& operator=(const std::function<void()>& f) {
+		f_ = f;
+		return *this;
 	}
 
 	std::string repr(void) const { return "<Functor>"; }
