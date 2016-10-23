@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -50,8 +50,9 @@ public:
 
 	Sem(const Sem& s) : Base(), name_(), sem_(s.sem_) { }
 
-	Sem(Sem&& s) : Sem() {
-		swap(*this, s);
+	Sem(Sem&& s) : Base() {
+		name_ = std::move(s.name_);
+		sem_ = std::move(s.sem_);
 	}
 
 	virtual ~Sem() {
@@ -59,14 +60,19 @@ public:
 		unlink();
 	}
 
-	Sem& operator=(Sem s) {
-		swap(*this, s);
+	Sem& operator=(const Sem& s) {
+		if (this == &s) {
+			return *this;
+		}
+		name_ = s.name_;
+		sem_ = s.sem_;
 		return *this;
 	}
 
-	static void swap(Sem& a, Sem& b) {
-		std::swap(a.name_, b.name_);
-		std::swap(a.sem_, b.sem_);
+	Sem& operator=(Sem&& s) {
+		name_ = std::move(s.name_);
+		sem_ = std::move(s.sem_);
+		return *this;
 	}
 
 	virtual std::string repr(void) const {
