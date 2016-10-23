@@ -50,10 +50,7 @@ public:
 
 	Sem(const Sem& s) : Base(), name_(), sem_(s.sem_) { }
 
-	Sem(Sem&& s) : Base() {
-		name_ = std::move(s.name_);
-		sem_ = std::move(s.sem_);
-	}
+	Sem(Sem&& s) : Base(), name_(std::move(s.name_)), sem_(std::move(s.sem_)) { }
 
 	virtual ~Sem() {
 		close();

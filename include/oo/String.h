@@ -66,7 +66,7 @@ public:
 	String(const rune *);
 	String(rune);
 
-	String(String&& s) {
+	String(String&& s) : Base(), Sizeable() {
 		s_data = s.s_data;
 		s_cap = s.s_cap;
 		s_len = s.s_len;

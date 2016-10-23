@@ -55,9 +55,7 @@ public:
 
 	Sock(const Sock& s) : Base(), f_(s.f_) { }
 
-	Sock(Sock&& s) : Base() {
-		f_ = std::move(s.f_);
-	}
+	Sock(Sock&& s) : Base(), f_(std::move(s.f_)) { }
 
 	virtual ~Sock() {
 		clear();

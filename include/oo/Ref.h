@@ -55,9 +55,7 @@ public:
 
 	Ref(const Ref<T>& r) : Base(), r_(r.r_) { }
 
-	Ref(Ref<T>&& r) : Base() {
-		r_ = std::move(r.r_);
-	}
+	Ref(Ref<T>&& r) : Base(), r_(std::move(r.r_)) { }
 
 //	virtual ~Ref() { }
 

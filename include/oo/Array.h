@@ -62,9 +62,7 @@ public:
 
 	Array(const Array<T>& a) : Base(), Sequence<T>(), v_(a.v_) { }
 
-	Array(Array<T>&& a) : Array() {
-		v_ = a.v_;
-	}
+	Array(Array<T>&& a) : Base(), Sequence<T>(), v_(std::move(a.v_)) { }
 
 	Array(const List<T>&);	// convert List to Array
 

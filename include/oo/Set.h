@@ -57,9 +57,7 @@ public:
 		}
 	}
 
-	Set(Set<T>&& s) : Base(), Sizeable() {
-		s_ = std::move(s.s_);
-	}
+	Set(Set<T>&& s) : Base(), Sizeable(), s_(std::move(s.s_)) { }
 
 //	~Set() { }
 

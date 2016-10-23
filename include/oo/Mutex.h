@@ -77,6 +77,7 @@ public:
 	Mutex& operator=(Mutex&& m) {
 		state = m.state;
 		m_ = std::move(m.m_);
+		m.state = MutexUnlocked;
 		return *this;
 	}
 

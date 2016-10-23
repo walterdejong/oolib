@@ -95,6 +95,11 @@ public:
 		namecount_ = m.namecount_;
 		namesize_ = m.namesize_;
 		subject_ = std::move(m.subject_);
+
+		m.ovecsize_ = 0;
+		m.matches_ = 0;
+		m.namecount_ = 0;
+		m.namesize_ = 0;
 		return *this;
 	}
 
@@ -177,6 +182,8 @@ public:
 		options_ = r.options_;
 		re_ = std::move(r.re_);
 		study_ = std::move(r.study_);
+
+		r.options_ = 0;
 		return *this;
 	}
 

@@ -88,6 +88,7 @@ public:
 		mode_ = std::move(f.mode_);
 		w_ = std::move(f.w_);
 		is_pipe_ = f.is_pipe_;
+		f.is_pipe_ = false;
 		return *this;
 	}
 

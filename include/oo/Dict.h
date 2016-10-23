@@ -52,9 +52,7 @@ public:
 
 	Dict(const Dict& d) : Base(), Sizeable(), m_(std::map<String, T>(d.m_)) { }
 
-	Dict(Dict<T>&& d) : Dict() {
-		m_ = d.m_;
-	}
+	Dict(Dict<T>&& d) : Base(), Sizeable(), m_(std::move(d.m_)) { }
 
 //	~Dict() { }
 

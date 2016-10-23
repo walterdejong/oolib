@@ -62,9 +62,7 @@ public:
 
 	List(const List<T>& a) : Base(), Sequence<T>(), l_(a.l_) { }
 
-	List(List<T>&& a) : List() {
-		l_ = a.l_;
-	}
+	List(List<T>&& a) : Base(), Sequence<T>(), l_(std::move(a.l_)) { }
 
 	List(const Array<T>&);	// convert array to list
 
