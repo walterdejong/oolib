@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -55,19 +55,25 @@ public:
 
 	Sock(const Sock& s) : Base(), f_(s.f_) { }
 
-	Sock(Sock&& s) : Sock() { swap(*this, s); }
+	Sock(Sock&& s) : Base() {
+		f_ = std::move(s.f_);
+	}
 
 	virtual ~Sock() {
 		clear();
 	}
 
-	Sock& operator=(Sock s) {
-		swap(*this, s);
+	Sock& operator=(const Sock& s) {
+		if (this == &s) {
+			return *this;
+		}
+		f_ = s.f_;
 		return *this;
 	}
 
-	static void swap(Sock& a, Sock& b) {
-		std::swap(a.f_, b.f_);
+	Sock& operator=(Sock&& s) {
+		f_ = std::move(s.f_);
+		return *this;
 	}
 
 	std::string repr(void) const { return "<Sock>"; }
