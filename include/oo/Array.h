@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -63,7 +63,7 @@ public:
 	Array(const Array<T>& a) : Base(), Sequence<T>(), v_(a.v_) { }
 
 	Array(Array<T>&& a) : Array() {
-		swap(*this, a);
+		v_ = a.v_;
 	}
 
 	Array(const List<T>&);	// convert List to Array
@@ -77,26 +77,22 @@ public:
 
 //	~Array() { }
 
-	Array<T>& operator=(Array<T> a) {
-		swap(*this, a);
+	Array<T>& operator=(const Array<T>& a) {
+		if (this == &a) {
+			return *this;
+		}
+		v_ = a.v_;
 		return *this;
 	}
 
-	static void swap(Array<T>& a, Array<T>& b) {
-		std::swap(a.v_, b.v_);
+	Array<T>& operator=(Array<T>&& a) {
+		v_ = std::move(a.v_);
+		return *this;
 	}
 
 	std::string repr(void) const;
 
-	// the swap trick frees all memory in the vector
-	static void force_free(std::vector<T>& v) {
-		std::vector<T> tmp;
-		v.swap(tmp);
-		// stack unwinds, deleting tmp
-	}
-
 	void clear(void) {
-		force_free(v_);
 		v_.clear();
 	}
 
