@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -57,34 +57,30 @@ public:
 		}
 	}
 
-	Set(Set<T>&& s) : Set() {
-		swap(*this, s);
+	Set(Set<T>&& s) : Base(), Sizeable() {
+		s_ = std::move(s.s_);
 	}
 
 //	~Set() { }
 
-	Set<T>& operator=(Set<T> s) {
-		swap(*this, s);
+	Set<T>& operator=(const Set<T>& s) {
+		if (this == &s) {
+			return *this;
+		}
+		s_ = s.s_;
 		return *this;
 	}
 
-	static void swap(Set<T>& a, Set<T>& b) {
-		std::swap(a.s_, b.s_);
+	Set<T>& operator=(Set<T>&& s) {
+		s_ = std::move(s.s_);
+		return *this;
 	}
 
 	std::string repr(void) const;
 
 	bool operator!(void) const { return empty(); }
 
-	// the swap trick frees all memory in the set
-	static void force_free(std::set<T>& s) {
-		std::set<T> tmp;
-		s.swap(tmp);
-		// stack unwinds, deleting tmp
-	}
-
 	void clear(void) {
-		force_free(s_);
 		s_.clear();
 	}
 
