@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -63,23 +63,35 @@ public:
 	File(const File& f) : Base(), name_(f.name_), mode_(f.mode_),
 		w_(f.w_), is_pipe_(f.is_pipe_) { }
 
-	File(File&& f) : File() { swap(*this, f); }
+	File(File&& f) : Base() {
+		name_ = std::move(f.name_);
+		mode_ = std::move(f.mode_);
+		w_ = std::move(f.w_);
+		is_pipe_ = f.is_pipe_;
+	}
 
 	~File() { this->close(); }
 
-	File& operator=(File f) {
-		swap(*this, f);
+	File& operator=(const File& f) {
+		if (this == &f) {
+			return *this;
+		}
+		name_ = f.name_;
+		mode_ = f.mode_;
+		w_ = f.w_;
+		is_pipe_ = f.is_pipe_;
+		return *this;
+	}
+
+	File& operator=(File&& f) {
+		name_ = std::move(f.name_);
+		mode_ = std::move(f.mode_);
+		w_ = std::move(f.w_);
+		is_pipe_ = f.is_pipe_;
 		return *this;
 	}
 
 	bool operator!(void) const { return this->isclosed(); }
-
-	static void swap(File& a, File& b) {
-		std::swap(a.name_, b.name_);
-		std::swap(a.mode_, b.mode_);
-		std::swap(a.w_, b.w_);
-		std::swap(a.is_pipe_, b.is_pipe_);
-	}
 
 	std::string repr(void) const {
 		if (!name_.empty()) {
