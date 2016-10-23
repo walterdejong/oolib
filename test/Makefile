@@ -45,7 +45,7 @@ INCLUDE=../include
 CXXFLAGS=-Wall $(CXX_STANDARD) -gdwarf-2 -fPIC -I$(INCLUDE)
 #CXXFLAGS=-Wall $(CXX_STANDARD) -O3 -fPIC -I$(INCLUDE)
 
-LFLAGS=-L../src
+LFLAGS=-L../src -g
 LIBS=-loo
 # Linux sometimes requires librt for the sem_xxx() functions
 #LIBS=-loo -lrt
