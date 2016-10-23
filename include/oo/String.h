@@ -107,16 +107,19 @@ public:
 		return *this;
 	}
 
-	static void swap(String& a, String& b) {
-		std::swap(a.s_len, b.s_len);
-		std::swap(a.s_cap, b.s_cap);
-		std::swap(a.s_data, b.s_data);
-	}
-
 	void clear(void) {
-		// make it an empty string
-		String tmp;
-		this->swap(*this, tmp);
+		if (s_cap <= kSmallestString) {
+			*s_data = 0;
+			s_len = 0;
+			return;
+		}
+
+		delete [] s_data;
+
+		s_cap = kSmallestString;
+		s_data = new char[s_cap];
+		*s_data = 0;
+		s_len = 0;
 	}
 
 	std::string repr(void) const {
