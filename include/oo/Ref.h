@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -55,17 +55,23 @@ public:
 
 	Ref(const Ref<T>& r) : Base(), r_(r.r_) { }
 
-	Ref(Ref<T>&& r) : Ref() { swap(*this, r); }
+	Ref(Ref<T>&& r) : Base() {
+		r_ = std::move(r.r_);
+	}
 
 //	virtual ~Ref() { }
 
-	Ref<T>& operator=(Ref<T> r) {
-		swap(*this, r);
+	Ref<T>& operator=(const Ref<T>& r) {
+		if (this == &r) {
+			return *this;
+		}
+		r_ = r.r_;
 		return *this;
 	}
 
-	static void swap(Ref<T>& a, Ref<T>& b) {
-		std::swap(a.r_, b.r_);
+	Ref<T>& operator=(Ref<T>&& r) {
+		r_ = std::move(r.r_);
+		return *this;
 	}
 
 	void clear(void) {
