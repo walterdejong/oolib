@@ -6,13 +6,13 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met: 
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer. 
+ *    list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution. 
+ *    and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -63,20 +63,28 @@ public:
 	Error(const Error& e) : Base(), errcode(e.errcode), errname(e.errname), errmsg(e.errmsg) { }
 
 	Error(Error&& e) : Error() {
-		swap(*this, e);
+		errcode = e.errcode;
+		errname = std::move(e.errname);
+		errmsg = std::move(e.errmsg);
 	}
 
 	virtual ~Error() { }
 
-	Error& operator=(Error e) {
-		swap(*this, e);
+	Error& operator=(const Error& e) {
+		if (this == &e) {
+			return *this;
+		}
+		errcode = e.errcode;
+		errname = e.errname;
+		errmsg = e.errmsg;
 		return *this;
 	}
 
-	static void swap(Error& a, Error& b) {
-		std::swap(a.errcode, b.errcode);
-		std::swap(a.errname, b.errname);
-		std::swap(a.errmsg, b.errmsg);
+	Error& operator=(Error&& e) {
+		errcode = e.errcode;
+		errname = std::move(e.errname);
+		errmsg = std::move(e.errmsg);
+		return *this;
 	}
 
 	std::string repr(void) const {
@@ -124,10 +132,14 @@ inline std::ostream& operator<<(std::ostream& os, const Error& e) {
 		x(int c, const std::string& m) : Error(c, #x, m) { }	\
 		x(const char *m) : Error(k##x, #x, m) { }				\
 		x(const std::string& m) : Error(k##x, #x, m) { }		\
-		x(const x& e) : Error(e.errcode, #x, e.errmsg) { }		\
-		x(x&& e) : x() { swap(*this, e); }						\
-		x& operator=(x e) {										\
-			swap(*this, e);										\
+		x(const x& e) : Error(e) { }							\
+		x(x&& e) : Error(e) { }									\
+		x& operator=(const x& e) {								\
+			Error::operator=(e);								\
+			return *this;										\
+		}														\
+		x& operator=(x&& e) {									\
+			Error::operator=(e);								\
 			return *this;										\
 		}														\
 	}
